@@ -1,0 +1,24 @@
+[project]
+name = "kg-onboarding"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Nathan Gabriel Barreto Santos", email = "nathan.santos@ifms.edu.br" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=2.0.0",
+    "jupyter>=1.1.1",
+    "neo4j>=6.4.1",
+    "polars>=2.1.0",
+    "pydriller>=2.12",
+    "python-dotenv>=1.2.4",
+]
+
+[project.scripts]
+kg-onboarding = "kg_onboarding:main"
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
