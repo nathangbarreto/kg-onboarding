@@ -157,6 +157,32 @@ RETURN e.position, e.type, u.login, left(e.body, 80)
 ORDER BY e.position;
 ```
 
+### Ferramentas do agente
+
+As consultas que o agente usará estão em `src/kg_onboarding/ferramentas.py`, cada uma
+ligada a uma dúvida típica de newcomer ([docs/perguntas_newcomer.md](docs/perguntas_newcomer.md)).
+Todas rodam em modo somente leitura e podem ser chamadas pelo terminal:
+
+```bash
+uv run kg-onboarding                                        # lista as ferramentas
+uv run kg-onboarding especialistas_do_pacote pacote=cache limite=3
+```
+
+```json
+[
+  {"login": "ben-manes", "comentarios": 12, "prs": 1, "commits": 2, "pontuacao": 20, ...},
+  {"login": "lowasser",  "comentarios": 8,  "revisoes": 1, "pontuacao": 11, ...},
+  {"login": "kluever",   "comentarios": 5,  "revisoes": 1, "pontuacao": 8, ...}
+]
+```
+
+Testes de integração (exigem o Neo4j com o grafo carregado), que também verificam o
+gabarito de avaliação em `avaliacao/perguntas.jsonl`:
+
+```bash
+uv run pytest
+```
+
 ### Parar o Neo4j
 
 ```bash
@@ -177,7 +203,11 @@ docker compose down        # os dados ficam em neo4j/data
 │   │   ├── comum.py           # conexões e utilitários
 │   │   ├── carregar_grafo.py  # SQLite -> Neo4j
 │   │   └── teste_conexao.py   # verificação do ambiente
-│   └── kg_onboarding/     # pacote Python do projeto
+│   └── kg_onboarding/
+│       ├── grafo.py           # acesso somente leitura ao Neo4j
+│       └── ferramentas.py     # ferramentas do agente (+ CLI kg-onboarding)
+├── avaliacao/perguntas.jsonl  # perguntas de newcomer + ferramenta esperada
+├── tests/                 # testes de integração
 ├── docker-compose.yml     # Neo4j 5.26 Community + GDS
 └── pyproject.toml
 ```
@@ -190,6 +220,11 @@ docker compose down        # os dados ficam em neo4j/data
 - Dependências gerenciadas com `uv add <pacote>`.
 
 ## Limitações conhecidas
+
+- **Extração incompleta de issues e PRs:** a coleta foi abortada (ver `__checkpoints`
+  no SQLite). O banco tem só os itens atualizados há mais tempo: todas as issues estão
+  fechadas (2014–2017) e os PRs vão até 2022. Detalhes em
+  [docs/perguntas_newcomer.md](docs/perguntas_newcomer.md#limitação-atual-dos-dados).
 
 - Não há ligação direta entre releases e PRs nos dados. Ela depende do histórico git
   (`git tag --contains`), ainda não minerado.
@@ -205,7 +240,9 @@ docker compose down        # os dados ficam em neo4j/data
 - [ ] Minerar o histórico git com PyDriller (`Commit -[:MODIFIES]-> File`, releases → PRs)
 - [ ] Avaliar nós `Label`/`Package` a partir das labels das issues
 - [ ] Aplicar algoritmos do GDS (centralidade de contribuidores, comunidades de arquivos)
-- [ ] Construir o agente de IA que consulta o grafo
+- [x] Ferramentas de consulta para o agente e gabarito inicial de avaliação
+- [ ] Completar a extração de issues e PRs
+- [ ] Construir o loop do agente (LLM + ferramentas) e avaliá-lo com o gabarito
 
 ## Autor
 

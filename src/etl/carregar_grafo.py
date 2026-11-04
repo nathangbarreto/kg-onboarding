@@ -62,6 +62,11 @@ def criar_esquema(driver: Driver) -> None:
         driver.execute_query(
             f"CREATE INDEX {label.lower()}_{prop} IF NOT EXISTS FOR (n:{label}) ON (n.{prop})"
         )
+    # Busca por palavras em títulos e corpos (usada pela ferramenta buscar_discussoes)
+    driver.execute_query(
+        "CREATE FULLTEXT INDEX texto_issues_prs IF NOT EXISTS "
+        "FOR (n:Issue|PullRequest) ON EACH [n.title, n.body]"
+    )
 
 
 # ---------------------------------------------------------------------------

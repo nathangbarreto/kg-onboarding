@@ -35,6 +35,11 @@ docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
 - Teste do ambiente: `uv run src/etl/teste_conexao.py`
 - Carga do grafo: `uv run src/etl/carregar_grafo.py [etapas...] [--limpar]`
   (modelo e decisões em `docs/modelo_grafo.md`; utilitários em `src/etl/comum.py`)
+- Ferramentas do agente: `src/kg_onboarding/ferramentas.py` (registrar com `@ferramenta`,
+  sempre via `grafo.consultar`, que roda em modo leitura); CLI `uv run kg-onboarding`
+- Testes: `uv run pytest` (integração; precisa do Neo4j com o grafo carregado). Ao criar
+  ferramenta, acrescente perguntas em `avaliacao/perguntas.jsonl`.
+- Dados de issues/PRs estão incompletos (extração abortada); ver `docs/perguntas_newcomer.md`.
 - Se houver um `VIRTUAL_ENV` de outro projeto ativo, o uv avisa e o ignora; pode-se rodar `unset VIRTUAL_ENV`.
 
 ## Convenções

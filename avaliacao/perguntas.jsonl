@@ -1,0 +1,18 @@
+{"id": "q01", "barreira": "tarefa", "pergunta": "Quais são as principais áreas do Guava onde eu poderia contribuir?", "ferramenta": "listar_pacotes", "argumentos": {}}
+{"id": "q02", "barreira": "tarefa", "pergunta": "Quero mexer em coleções. Tem algum PR aberto nessa área?", "ferramenta": "prs_abertos", "argumentos": {"pacote": "collect"}}
+{"id": "q03", "barreira": "tarefa", "pergunta": "Alguém já sugeriu mudanças no BloomFilter?", "ferramenta": "buscar_discussoes", "argumentos": {"texto": "bloom filter"}}
+{"id": "q04", "barreira": "tarefa", "pergunta": "Já existe issue sobre Optional em Java 8?", "ferramenta": "buscar_discussoes", "argumentos": {"texto": "Optional java 8", "tipo": "issue"}}
+{"id": "q05", "barreira": "tarefa", "pergunta": "Quais PRs estão abertos agora?", "ferramenta": "prs_abertos", "argumentos": {}}
+{"id": "q06", "barreira": "mentor", "pergunta": "Com quem eu deveria conversar sobre o pacote de cache?", "ferramenta": "especialistas_do_pacote", "argumentos": {"pacote": "cache"}}
+{"id": "q07", "barreira": "mentor", "pergunta": "Quem entende de concorrência (com.google.common.util.concurrent) no projeto?", "ferramenta": "especialistas_do_pacote", "argumentos": {"pacote": "concurrent"}}
+{"id": "q08", "barreira": "mentor", "pergunta": "Quem decide se um PR entra no Guava?", "ferramenta": "mantenedores", "argumentos": {}}
+{"id": "q09", "barreira": "mentor", "pergunta": "Quem é o cpovirk e em que ele trabalha?", "ferramenta": "perfil_contribuidor", "argumentos": {"login": "cpovirk"}}
+{"id": "q10", "barreira": "mentor", "pergunta": "O ben-manes contribui com quais partes do projeto?", "ferramenta": "perfil_contribuidor", "argumentos": {"login": "ben-manes"}}
+{"id": "q11", "barreira": "historico", "pergunta": "Do que trata a issue 1947 e como ela foi resolvida?", "ferramenta": "detalhes", "argumentos": {"numero": 1947}}
+{"id": "q12", "barreira": "historico", "pergunta": "Quem fez o merge do PR 1874 e quais commits ele tinha?", "ferramenta": "detalhes", "argumentos": {"numero": 1874}}
+{"id": "q13", "barreira": "historico", "pergunta": "Resuma a discussão da issue 2098.", "ferramenta": "linha_do_tempo", "argumentos": {"numero": 2098}}
+{"id": "q14", "barreira": "historico", "pergunta": "Por que a issue 2165 não foi implementada?", "ferramenta": "linha_do_tempo", "argumentos": {"numero": 2165}}
+{"id": "q15", "barreira": "processo", "pergunta": "Qual a chance de o PR de alguém que nunca contribuiu ser aceito?", "ferramenta": "processo_de_contribuicao", "argumentos": {}}
+{"id": "q16", "barreira": "processo", "pergunta": "Por que vários PRs aparecem fechados sem merge mesmo tendo sido aceitos?", "ferramenta": "processo_de_contribuicao", "argumentos": {}}
+{"id": "q17", "barreira": "processo", "pergunta": "Quanto tempo costuma levar até um PR ter resposta?", "ferramenta": "processo_de_contribuicao", "argumentos": {}}
+{"id": "q18", "barreira": "outra", "pergunta": "Quais foram as três últimas releases do Guava?", "ferramenta": "consultar_cypher", "argumentos": null}
