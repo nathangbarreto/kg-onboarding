@@ -33,6 +33,8 @@ docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
 - Rodar scripts: `uv run src/etl/<script>.py`
 - Adicionar pacote: `uv add <pacote>` (no zsh, use aspas em extras: `uv add "mcp[cli]"`)
 - Teste do ambiente: `uv run src/etl/teste_conexao.py`
+- Carga do grafo: `uv run src/etl/carregar_grafo.py [etapas...] [--limpar]`
+  (modelo e decisões em `docs/modelo_grafo.md`; utilitários em `src/etl/comum.py`)
 - Se houver um `VIRTUAL_ENV` de outro projeto ativo, o uv avisa e o ignora; pode-se rodar `unset VIRTUAL_ENV`.
 
 ## Convenções

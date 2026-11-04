@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Nathan Gabriel Barreto Santos", email = "nathan.santos@ifms.edu.br" }
+    { name = "Nathan Gabriel Barreto Santos", email = "nathan.santos@ufms.br" }
 ]
 requires-python = ">=3.12"
 dependencies = [
