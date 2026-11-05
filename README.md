@@ -57,7 +57,7 @@ O modelo completo, a origem de cada relação e as decisões de modelagem estão
 ## Requisitos
 
 - [uv](https://docs.astral.sh/uv/) (instala o Python 3.12 e as dependências)
-- Docker com Docker Compose
+- Docker com Docker Compose (Neo4j e Ollama rodam em containers)
 - O arquivo `guava.sqlite` (não versionado; obtido separadamente)
 
 ## Instalação
@@ -183,6 +183,46 @@ gabarito de avaliação em `avaliacao/perguntas.jsonl`:
 uv run pytest
 ```
 
+### Guia de uma issue
+
+Implementa o atendimento ao newcomer descrito em [docs/arquitetura.md](docs/arquitetura.md):
+o LLM interpreta a issue, o grafo fornece o contexto relacionado (itens semelhantes,
+pessoas, código citado, processo) e o LLM redige um guia em português.
+
+O LLM roda localmente no [Ollama](https://ollama.com), em um container do mesmo
+`docker-compose.yml`. Na primeira vez, baixe o modelo (~2 GB):
+
+```bash
+docker compose up -d ollama
+docker exec ollama-mestrado ollama pull qwen2.5:3b
+```
+
+Variáveis opcionais no `.env` (os valores abaixo são os padrões):
+
+```dotenv
+LLM_MODELO=qwen2.5:3b
+OLLAMA_HOST=http://localhost:11434
+LLM_NUM_CTX=8192
+```
+
+```bash
+uv run kg-onboarding guia 2098              # guia completo (~1 min na CPU)
+uv run kg-onboarding guia 2098 --sem-llm    # só o contexto do grafo (instantâneo)
+uv run kg-onboarding guia 2098 --replay     # só com o que existia quando a issue foi criada
+uv run kg-onboarding guia 2098 --json       # saída estruturada completa
+```
+
+### Avaliação por replay histórico
+
+```bash
+uv run avaliacao/replay.py                  # ~20 s; resultados em data/avaliacao/
+uv run avaliacao/replay.py --limite 60 --llm  # termos de busca vindos do LLM (~10 min)
+```
+
+Compara o contexto montado "no passado" com o que aconteceu depois (itens
+relacionados e pessoas que participaram). Resultados em
+[docs/arquitetura.md](docs/arquitetura.md#avaliação-por-replay-histórico).
+
 ### Parar o Neo4j
 
 ```bash
@@ -205,10 +245,15 @@ docker compose down        # os dados ficam em neo4j/data
 │   │   └── teste_conexao.py   # verificação do ambiente
 │   └── kg_onboarding/
 │       ├── grafo.py           # acesso somente leitura ao Neo4j
-│       └── ferramentas.py     # ferramentas do agente (+ CLI kg-onboarding)
-├── avaliacao/perguntas.jsonl  # perguntas de newcomer + ferramenta esperada
+│       ├── ferramentas.py     # ferramentas de consulta (+ CLI kg-onboarding)
+│       ├── guia.py            # guia de uma issue (interpretação → contexto → síntese)
+│       └── llm.py             # acesso ao LLM local (Ollama)
+├── avaliacao/
+│   ├── perguntas.jsonl    # perguntas de newcomer + ferramenta esperada
+│   └── replay.py          # avaliação por replay histórico
 ├── tests/                 # testes de integração
-├── docker-compose.yml     # Neo4j 5.26 Community + GDS
+├── docker-compose.yml     # Neo4j 5.26 Community + GDS e Ollama (LLM local)
+├── ollama/                # modelos do Ollama (não versionado)
 └── pyproject.toml
 ```
 
@@ -242,7 +287,9 @@ docker compose down        # os dados ficam em neo4j/data
 - [ ] Aplicar algoritmos do GDS (centralidade de contribuidores, comunidades de arquivos)
 - [x] Ferramentas de consulta para o agente e gabarito inicial de avaliação
 - [ ] Completar a extração de issues e PRs
-- [ ] Construir o loop do agente (LLM + ferramentas) e avaliá-lo com o gabarito
+- [x] Recuperação e consolidação do contexto de uma issue, com avaliação por replay
+- [x] Interpretação e síntese com LLM local (Ollama)
+- [ ] Comparar a síntese com modelos maiores e avaliar a qualidade do guia
 
 ## Autor
 

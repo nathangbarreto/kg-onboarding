@@ -25,7 +25,7 @@ docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
 - Browser: http://localhost:7474 · Bolt: `bolt://localhost:7687`
 - Senha: em `.env`. Não exibir nem commitar. Ex. de uso no shell sem mostrar:
   `docker exec neo4j-mestrado cypher-shell -u neo4j -p "$(grep ^NEO4J_PASSWORD .env | cut -d= -f2-)" "RETURN gds.version();"`
-- Não alterar a versão da imagem (`neo4j:5.26-community`) sem combinar antes.
+- Não alterar a versão das imagens (`neo4j:5.26-community`, `ollama/ollama:0.40.14`) sem combinar antes.
 
 ## Python (uv)
 
@@ -40,6 +40,14 @@ docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
 - Testes: `uv run pytest` (integração; precisa do Neo4j com o grafo carregado). Ao criar
   ferramenta, acrescente perguntas em `avaliacao/perguntas.jsonl`.
 - Dados de issues/PRs estão incompletos (extração abortada); ver `docs/perguntas_newcomer.md`.
+- Guia de uma issue (arquitetura online, fluxo fixo): `src/kg_onboarding/guia.py`;
+  `uv run kg-onboarding guia <n> [--sem-llm] [--replay] [--json]`. Mapa e resultados: `docs/arquitetura.md`
+- LLM: Ollama local (escolha do usuário), container `ollama-mestrado` no docker-compose,
+  modelo `qwen2.5:3b`; acesso só via `src/kg_onboarding/llm.py` (temperatura 0, seed fixa,
+  `num_ctx` explícito). CPU apenas: manter o contexto da síntese compacto.
+- Avaliação por replay: `uv run avaliacao/replay.py` (resultados em `data/avaliacao/`).
+  Ao mudar a recuperação, rode de novo e atualize a tabela em `docs/arquitetura.md`.
+- Mineração do repositório Git: adiada por decisão do usuário; não implementar sem pedido.
 - Se houver um `VIRTUAL_ENV` de outro projeto ativo, o uv avisa e o ignora; pode-se rodar `unset VIRTUAL_ENV`.
 
 ## Convenções

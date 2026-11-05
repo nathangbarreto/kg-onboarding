@@ -59,3 +59,75 @@ def test_cypher_livre_permite_leitura():
     assert consultar_cypher("MATCH (r:Release) RETURN r.name LIMIT 1")
     # palavras reservadas dentro de strings não devem bloquear a consulta
     assert consultar_cypher("MATCH (i:Issue) WHERE i.title CONTAINS 'Set' RETURN i.number LIMIT 1")
+
+
+# ---------------------------------------------------------------------------
+# Guia (recuperação e consolidação do contexto de uma issue)
+# ---------------------------------------------------------------------------
+
+from kg_onboarding.guia import coletar_contexto, fundir_pessoas, termos_heuristicos  # noqa: E402
+
+
+def test_contexto_tem_todas_as_secoes():
+    ctx = coletar_contexto(2098)
+    assert set(ctx) >= {"issue", "itens_semelhantes", "pessoas", "codigo", "processo"}
+    assert ctx["itens_semelhantes"] and ctx["pessoas"]
+    assert all(s["numero"] != 2098 for s in ctx["itens_semelhantes"])
+    assert not any(l.startswith("status=") for l in ctx["issue"]["labels"])  # não vaza o desfecho
+
+
+def test_replay_nao_usa_informacao_futura():
+    criada = coletar_contexto(2098)["issue"]["criada_em"]
+    numeros = [s["numero"] for s in coletar_contexto(2098, replay=True)["itens_semelhantes"]]
+    datas = consultar_cypher(
+        f"MATCH (n) WHERE (n:Issue OR n:PullRequest) AND n.number IN {numeros} RETURN n.created_at AS d")
+    assert all(d["d"] < criada for d in datas)
+
+
+def test_issue_inexistente():
+    assert coletar_contexto(999999) is None
+
+
+def test_fusao_prioriza_quem_aparece_nas_duas_listas():
+    area = [{"login": "a", "itens": 1, "papeis": ["commented"], "em_semelhantes": []},
+            {"login": "b", "itens": 1, "papeis": ["commented"], "em_semelhantes": []}]
+    ativos = [{"login": "c", "fechamentos": 9}, {"login": "b", "fechamentos": 5}]
+    assert fundir_pessoas(area, ativos)[0]["login"] == "b"
+
+
+def test_termos_heuristicos_tiram_stopwords_e_pegam_codigo():
+    termos = termos_heuristicos("Add support for the BloomFilter", "Use Lists.newArrayList here")
+    assert "the" not in termos and "BloomFilter" in termos and "Lists.newArrayList" in termos
+
+
+# ---------------------------------------------------------------------------
+# LLM local (Ollama): pulados se o Ollama não estiver no ar
+# ---------------------------------------------------------------------------
+
+from kg_onboarding.guia import ESQUEMA_INTERPRETACAO, TIPOS, _contexto_compacto, interpretar  # noqa: E402
+
+
+def _ollama_disponivel() -> bool:
+    from kg_onboarding.llm import MODELO, _cliente
+    try:
+        return any(m.model.startswith(MODELO) for m in _cliente().list().models)
+    except Exception:  # noqa: BLE001
+        return False
+
+
+requer_ollama = pytest.mark.skipif(not _ollama_disponivel(), reason="Ollama/modelo indisponível")
+
+
+def test_contexto_compacto_cabe_na_janela():
+    texto = _contexto_compacto(coletar_contexto(2098), None)
+    assert "#2098" in texto and "PROCESSO DE CONTRIBUIÇÃO" in texto
+    assert len(texto) < 8000  # ~2 mil tokens: mantém a síntese rápida na CPU
+
+
+@requer_ollama
+def test_interpretacao_segue_o_esquema():
+    issue = coletar_contexto(2098)["issue"]
+    interp, metricas = interpretar(issue)
+    assert set(ESQUEMA_INTERPRETACAO["required"]) <= set(interp)
+    assert interp["tipo"] in TIPOS and interp["termos_busca"]
+    assert metricas["tokens_entrada"] > 0

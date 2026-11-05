@@ -13,3 +13,12 @@ services:
       - ./neo4j/data:/data
       - ./neo4j/logs:/logs
     restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:0.40.14
+    container_name: ollama-mestrado
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+    restart: unless-stopped

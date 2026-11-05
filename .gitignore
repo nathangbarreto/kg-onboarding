@@ -13,3 +13,4 @@ wheels/
 data/
 neo4j/
 .env
+ollama/
