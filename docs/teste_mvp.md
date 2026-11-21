@@ -1,7 +1,7 @@
-# Teste do kgo: guia para começar em uma issue do Guava
+# Teste do kgo: guia contextual para começar em uma issue do Guava
 
 O `kgo` mostra, para uma issue do projeto [google/guava](https://github.com/google/guava),
-um guia para quem quer contribuir pela primeira vez: resumo da issue, discussões
+um guia contextual para quem quer contribuir pela primeira vez: resumo da issue, discussões
 relacionadas, onde investigar no código, com quem falar e como contribuir.
 
 Você recebeu um arquivo `kg_onboarding-0.2.0-py3-none-any.whl`. Não é preciso
@@ -34,7 +34,7 @@ uv tool install kg_onboarding-0.2.0-py3-none-any.whl
 
 ```bash
 kgo --lista          # issues disponíveis neste teste
-kgo 669              # guia da issue #669
+kgo 669              # guia contextual da issue #669
 kgo 669 --sem-llm    # só os dados do grafo, sem o texto gerado por IA
 ```
 

@@ -2,7 +2,8 @@
 
 Grafo de conhecimento do repositório [google/guava](https://github.com/google/guava)
 construído para apoiar *newcomers* (novos contribuidores) em projetos open source,
-por meio de um agente de IA. Projeto de mestrado.
+por meio de **guias contextuais** produzidos por um **fluxo orquestrado** que combina o
+grafo e um LLM. Prática exploratória de um projeto de mestrado (UFMS).
 
 ## Objetivo
 
@@ -14,22 +15,24 @@ Quem chega a um projeto open source precisa responder perguntas que dependem de
 - Quem faz o merge de PRs e como o CI se comporta em cada commit?
 
 Este projeto transforma os dados extraídos do GitHub (issues, PRs, commits, eventos,
-CI, releases) num grafo no Neo4j. Um agente de IA usará esse grafo como base para
-responder a esse tipo de pergunta.
+CI, releases) num grafo de conhecimento no Neo4j. Um fluxo orquestrado consulta esse
+grafo e, com um LLM, produz o guia contextual de uma issue.
 
 ## Como funciona
 
 ```
-data/raw/guava.sqlite ──► src/etl/carregar_grafo.py ──► Neo4j + GDS ──► agente de IA
-   (dados do GitHub)          (ETL idempotente)          (grafo)        (em desenvolvimento)
+data/raw/guava.sqlite ──► src/etl/carregar_grafo.py ──► Neo4j ──► fluxo orquestrado ──► guia contextual
+   (dados do GitHub)          (ETL idempotente)          (grafo)    (consultas + LLM)       (kgo <issue>)
 ```
 
 1. **Origem:** um banco SQLite com dados do google/guava extraídos da API do GitHub
    (1.446 issues, 1.405 PRs, 7.503 commits, 27.526 eventos de timeline, 1.531 usuários etc.).
 2. **ETL:** scripts Python leem o SQLite, decodificam as colunas JSON e gravam nós e
    relações no Neo4j com `MERGE`. Rodar de novo atualiza os dados sem duplicar.
-3. **Grafo:** Neo4j 5.26 com o plugin Graph Data Science, para algoritmos como
-   centralidade e detecção de comunidades.
+3. **Grafo de conhecimento:** Neo4j 5.26 (com o plugin Graph Data Science instalado,
+   ainda não usado), 43.826 nós e 77.097 relações.
+4. **Fluxo orquestrado:** etapas fixas que vão do número da issue ao guia contextual
+   (ver [Guia contextual de uma issue](#guia-contextual-de-uma-issue-fluxo-orquestrado)).
 
 ### Modelo do grafo (resumo)
 
@@ -157,14 +160,17 @@ RETURN e.position, e.type, u.login, left(e.body, 80)
 ORDER BY e.position;
 ```
 
-### Ferramentas do agente
+### Catálogo de consultas
 
-As consultas que o agente usará estão em `src/kg_onboarding/ferramentas.py`, cada uma
-ligada a uma dúvida típica de newcomer ([docs/perguntas_newcomer.md](docs/perguntas_newcomer.md)).
-Todas rodam em modo somente leitura e podem ser chamadas pelo terminal:
+O catálogo de consultas está em `src/kg_onboarding/ferramentas.py`: nove consultas
+curadas, cada uma ligada a uma dúvida típica de newcomer
+([docs/perguntas_newcomer.md](docs/perguntas_newcomer.md)), e uma consulta livre em
+Cypher restrita a leitura. Cada consulta tem nome, descrição e parâmetros em JSON
+Schema. Todas rodam sem permissão de escrita (roteamento de leitura e barreira contra
+escrita) e podem ser chamadas pelo terminal:
 
 ```bash
-uv run kg-onboarding                                        # lista as ferramentas
+uv run kg-onboarding                                        # lista o catálogo de consultas
 uv run kg-onboarding especialistas_do_pacote pacote=cache limite=3
 ```
 
@@ -176,8 +182,10 @@ uv run kg-onboarding especialistas_do_pacote pacote=cache limite=3
 ]
 ```
 
-Testes de integração (exigem o Neo4j com o grafo carregado), que também verificam o
-gabarito de avaliação em `avaliacao/perguntas.jsonl`:
+Testes de integração (33; exigem o Neo4j com o grafo carregado): gabarito em
+`avaliacao/perguntas.jsonl` (cada pergunta de newcomer com a barreira, a consulta e os
+argumentos esperados), esquemas das consultas, barreira contra escrita, guias
+contextuais pré-gerados e etapas do fluxo orquestrado e da análise por snapshot:
 
 ```bash
 uv run pytest
@@ -186,34 +194,44 @@ uv run pytest
 ### Teste com newcomers (MVP)
 
 Para testar sem que o participante precise de Docker, banco ou chave de API, o pacote
-leva guias pré-gerados de algumas issues (`src/kg_onboarding/dados/guias.json`). Sem
-Neo4j acessível, o comando `kgo` entra em modo offline e usa esses guias.
+leva guias contextuais pré-gerados de algumas issues (`src/kg_onboarding/dados/guias.json`).
+Sem Neo4j acessível, o comando `kgo` entra em modo offline e usa esses guias.
 
 ```bash
-uv run kg-onboarding exportar 669 2098 ...   # gera/atualiza guias (precisa do grafo e do LLM)
+uv run kg-onboarding exportar 669 2098 ...   # gera/atualiza guias contextuais (grafo + LLM)
 uv build --wheel                             # cria dist/kg_onboarding-<versão>-py3-none-any.whl
 ```
 
 Envie o `.whl` e as instruções de [docs/teste_mvp.md](docs/teste_mvp.md). O participante
 instala com `uv tool install <arquivo>.whl` e usa `kgo <issue>`. No clone, `uv run kgo
-<issue>` roda ao vivo; `--offline` força os guias pré-gerados.
+<issue>` roda ao vivo; `--offline` força os guias contextuais pré-gerados.
 
-### Guia de uma issue
+### Guia contextual de uma issue (fluxo orquestrado)
 
-Implementa o atendimento ao newcomer descrito em [docs/arquitetura.md](docs/arquitetura.md):
-o LLM interpreta a issue, o grafo fornece o contexto relacionado (itens semelhantes,
-pessoas, código citado, processo) e o LLM redige um guia em português.
+O atendimento ao newcomer ([docs/arquitetura.md](docs/arquitetura.md)) é um fluxo
+orquestrado: as etapas rodam sempre na mesma ordem, a partir do número da issue.
+
+| Etapa | Implementação |
+|---|---|
+| Interpretar a issue | `guia.interpretar`: LLM com saída validada por esquema (objetivo, tipo, termos de busca, elementos de código); sem LLM, `guia.termos_heuristicos` |
+| Enriquecer contexto da issue | `guia.coletar_contexto`: quatro consultas, em sequência |
+| ↳ Buscar itens semelhantes | `guia._semelhantes` (índice de texto completo; estado, motivo do fechamento, commits que resolveram) |
+| ↳ Identificar pessoas relacionadas | `guia._pessoas` (quem participou dos itens semelhantes ou do mesmo pacote) |
+| ↳ Localizar elementos de código | `guia.elementos_de_codigo` (classes e métodos citados) e arquivos discutidos em revisões |
+| ↳ Recuperar processo de contribuição | `ferramentas.processo_de_contribuicao` (aceitação e tempo até a decisão) |
+| Consolidar e priorizar o contexto | `guia.fundir_pessoas` (*reciprocal rank fusion* com os mantenedores ativos, com o motivo de cada sugestão) e cortes |
+| Sintetizar guia contextual | `guia.gerar_guia`: contexto de até ~8 mil caracteres; o LLM redige em português, com seis seções fixas, usando só esse contexto |
 
 O LLM pode ser o Claude, pela API da Anthropic, ou um modelo local no
 [Ollama](https://ollama.com). Todas as variáveis estão em [.env.example](.env.example).
 
 **Claude (padrão quando há chave).** Coloque a chave no `.env`; o modelo padrão é o
 `claude-haiku-5-5`, o mais barato (US$ 0,10 / 0,50 por milhão de tokens de entrada/saída;
-um guia custa frações de centavo e o custo aparece no rodapé):
+um guia contextual custa cerca de US$ 0,001 e o custo aparece no rodapé):
 
 ```dotenv
 ANTHROPIC_API_KEY=sk-ant-...
-# LLM_MODELO=claude-sonnet-5-5   # opcional: modelo maior, para comparação
+# LLM_MODELO=claude-sonnet-5-5   # opcional: outro modelo do Claude
 ```
 
 Os modelos atuais do Claude não aceitam temperatura nem semente: a reprodutibilidade
@@ -228,22 +246,24 @@ docker exec ollama-mestrado ollama pull qwen2.5:3b
 ```
 
 ```bash
-uv run kg-onboarding guia 2098              # guia completo (segundos no Claude; ~1 min no Ollama/CPU)
+uv run kg-onboarding guia 2098              # guia contextual (segundos no Claude; ~1 min no Ollama/CPU)
 uv run kg-onboarding guia 2098 --sem-llm    # só o contexto do grafo (instantâneo)
-uv run kg-onboarding guia 2098 --replay     # só com o que existia quando a issue foi criada
+uv run kg-onboarding guia 2098 --snapshot   # análise por snapshot: só o que existia na criação da issue
 uv run kg-onboarding guia 2098 --json       # saída estruturada completa
 ```
 
-### Avaliação por replay histórico
+### Análise por snapshot (exploratória)
 
 ```bash
 uv run avaliacao/replay.py                  # ~20 s; resultados em data/avaliacao/
 uv run avaliacao/replay.py --limite 60 --llm  # termos de busca vindos do LLM (~10 min)
 ```
 
-Compara o contexto montado "no passado" com o que aconteceu depois (itens
-relacionados e pessoas que participaram). Resultados em
-[docs/arquitetura.md](docs/arquitetura.md#avaliação-por-replay-histórico).
+Reconstrói o estado do grafo na data de criação de cada issue, monta o contexto só
+com as informações daquele instante, sem informação futura, e o compara com os itens
+que vieram a ser referenciados e com as pessoas que participaram da resolução. É uma
+análise exploratória, ainda a amadurecer. Resultados em
+[docs/arquitetura.md](docs/arquitetura.md#análise-por-snapshot-exploratória).
 
 ### Parar o Neo4j
 
@@ -257,7 +277,7 @@ docker compose down        # os dados ficam em neo4j/data
 ├── data/                  # não versionado
 │   ├── raw/guava.sqlite   # banco de origem
 │   └── repos/             # clones de repositórios (mineração com PyDriller)
-├── docs/modelo_grafo.md   # modelo do grafo e decisões
+├── docs/                  # arquitetura, modelo do grafo, perguntas de newcomer, teste MVP
 ├── neo4j/                 # volume do Neo4j (não versionado)
 ├── notebooks/             # análises exploratórias
 ├── src/
@@ -266,13 +286,16 @@ docker compose down        # os dados ficam em neo4j/data
 │   │   ├── carregar_grafo.py  # SQLite -> Neo4j
 │   │   └── teste_conexao.py   # verificação do ambiente
 │   └── kg_onboarding/
+│       ├── __init__.py        # CLI (kg-onboarding e kgo)
+│       ├── config.py          # configuração (.env) e caminhos
 │       ├── grafo.py           # acesso somente leitura ao Neo4j
-│       ├── ferramentas.py     # ferramentas de consulta (+ CLI kg-onboarding)
-│       ├── guia.py            # guia de uma issue (interpretação → contexto → síntese)
-│       └── llm.py             # acesso ao LLM local (Ollama)
+│       ├── ferramentas.py     # catálogo de consultas
+│       ├── guia.py            # fluxo orquestrado do guia contextual
+│       ├── llm.py             # LLM com provedores intercambiáveis (Claude Haiku 5.5 / Ollama) e cache
+│       └── dados/guias.json   # guias contextuais pré-gerados (modo offline)
 ├── avaliacao/
-│   ├── perguntas.jsonl    # perguntas de newcomer + ferramenta esperada
-│   └── replay.py          # avaliação por replay histórico
+│   ├── perguntas.jsonl    # gabarito: pergunta de newcomer, barreira, consulta e argumentos
+│   └── replay.py          # análise por snapshot (exploratória)
 ├── tests/                 # testes de integração
 ├── docker-compose.yml     # Neo4j 5.26 Community + GDS e Ollama (LLM local)
 ├── ollama/                # modelos do Ollama (não versionado)
@@ -295,8 +318,8 @@ docker compose down        # os dados ficam em neo4j/data
 
 - Não há ligação direta entre releases e PRs nos dados. Ela depende do histórico git
   (`git tag --contains`), ainda não minerado.
-- Cerca de 3.750 commits existem apenas como referência (só o `sha`). A propriedade
-  `in_dataset` indica quais estão completos.
+- Cerca de 3.750 commits existem apenas como referência (só o `sha`): têm
+  `in_dataset = false`; os 7.503 completos têm `in_dataset = true`.
 - Arquivos (`File`) vêm só de comentários em commits. A relação commit → arquivo
   virá da mineração com PyDriller.
 - Contas automatizadas (`gissuebot`, `copybara-service[bot]`) distorcem rankings de
@@ -307,11 +330,12 @@ docker compose down        # os dados ficam em neo4j/data
 - [ ] Minerar o histórico git com PyDriller (`Commit -[:MODIFIES]-> File`, releases → PRs)
 - [ ] Avaliar nós `Label`/`Package` a partir das labels das issues
 - [ ] Aplicar algoritmos do GDS (centralidade de contribuidores, comunidades de arquivos)
-- [x] Ferramentas de consulta para o agente e gabarito inicial de avaliação
+- [x] Catálogo de consultas e gabarito inicial de avaliação
 - [ ] Completar a extração de issues e PRs
-- [x] Recuperação e consolidação do contexto de uma issue, com avaliação por replay
-- [x] Interpretação e síntese com LLM local (Ollama)
-- [ ] Comparar a síntese com modelos maiores e avaliar a qualidade do guia
+- [x] Fluxo orquestrado do guia contextual, com análise por snapshot (exploratória)
+- [x] Interpretação e síntese com LLM (Claude Haiku 5.5 ou Qwen 2.5:3b via Ollama), com cache
+- [ ] Modo agente (o LLM escolhe as consultas) e servidor MCP expondo o catálogo
+- [ ] Comparação sistemática entre LLMs e avaliação da qualidade do guia contextual
 
 ## Autor
 

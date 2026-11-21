@@ -1,8 +1,9 @@
-"""Ferramentas que o agente usa para consultar o grafo.
+"""Catálogo de consultas ao grafo de conhecimento.
 
-Cada ferramenta responde a uma pergunta típica de newcomer (ver
-docs/perguntas_newcomer.md). O registro FERRAMENTAS guarda nome, descrição e
-parâmetros em JSON Schema, no formato aceito pelas APIs de LLM com tool use.
+Nove consultas curadas, cada uma ligada a uma pergunta típica de newcomer (ver
+docs/perguntas_newcomer.md), e uma consulta livre em Cypher restrita a leitura.
+O registro FERRAMENTAS guarda nome, descrição e parâmetros em JSON Schema, no
+formato aceito pelas APIs de LLM com chamada de ferramentas.
 """
 
 from __future__ import annotations
@@ -275,21 +276,28 @@ def linha_do_tempo(numero: int, limite: int = 50) -> list[dict]:
     "merged OU fechado por commit. PRs abertos por bots (ex.: sincronização automática "
     "do copybara) são excluídos.",
 )
-def processo_de_contribuicao() -> list[dict]:
+def processo_de_contribuicao(ate: str | None = None) -> list[dict]:
+    """Sem `ate`: estado atual. Com `ate` (data ISO, usada na análise por snapshot):
+    só PRs abertos antes da data, e só conta como decidido o que foi fechado antes dela.
+    O parâmetro é interno ao fluxo orquestrado e não faz parte do esquema da consulta."""
     return consultar(f"""
         MATCH (u:User)-[:OPENED]->(p:PullRequest) WHERE {FILTRO_HUMANO}
-        WITH p, p.merged OR exists {{ (p)<-[:CLOSES]-(:Commit) }} AS aceito
+          AND ($ate IS NULL OR p.created_at < datetime($ate))
+        WITH p, CASE WHEN $ate IS NULL THEN p.state = 'closed'
+                     ELSE p.closed_at IS NOT NULL AND p.closed_at < datetime($ate) END AS decidido
+        WITH p, decidido,
+             ($ate IS NULL OR decidido) AND (p.merged OR exists {{ (p)<-[:CLOSES]-(:Commit) }}) AS aceito
         RETURN p.author_association AS vinculo_autor, count(*) AS prs,
-               sum(CASE WHEN p.state = 'open' THEN 1 ELSE 0 END) AS abertos,
+               sum(CASE WHEN NOT decidido THEN 1 ELSE 0 END) AS abertos,
                sum(CASE WHEN aceito THEN 1 ELSE 0 END) AS aceitos,
-               sum(CASE WHEN p.merged THEN 1 ELSE 0 END) AS via_merge_github,
+               sum(CASE WHEN aceito AND p.merged THEN 1 ELSE 0 END) AS via_merge_github,
                sum(CASE WHEN aceito AND NOT p.merged THEN 1 ELSE 0 END) AS via_commit_interno,
-               sum(CASE WHEN p.state = 'closed' AND NOT aceito THEN 1 ELSE 0 END) AS fechados_sem_aceite,
-               round(percentileCont(CASE WHEN p.closed_at IS NOT NULL
+               sum(CASE WHEN decidido AND NOT aceito THEN 1 ELSE 0 END) AS fechados_sem_aceite,
+               round(percentileCont(CASE WHEN p.closed_at IS NOT NULL AND ($ate IS NULL OR decidido)
                    THEN duration.inSeconds(p.created_at, p.closed_at).seconds / 86400.0 END, 0.5), 1)
                    AS dias_medianos_ate_decisao
         ORDER BY prs DESC
-    """)
+    """, ate=ate)
 
 
 # ---------------------------------------------------------------------------

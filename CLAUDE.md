@@ -1,8 +1,20 @@
 # kg-onboarding
 
 Projeto de mestrado: construir um grafo de conhecimento (Neo4j) a partir de um banco
-SQLite com dados extraídos do repositório GitHub `google/guava`. O grafo será usado por
-um agente de IA para apoiar newcomers em contribuições open source.
+SQLite com dados extraídos do repositório GitHub `google/guava`. Um fluxo orquestrado
+consulta o grafo e, com um LLM, gera guias contextuais para apoiar newcomers.
+
+O texto de qualificação (revisado pelos orientadores) é a referência: o repositório
+deve estar conforme ao que ele afirma. Terminologia em docs, docstrings e mensagens:
+"guia contextual", "grafo de conhecimento", "catálogo de consultas", "fluxo orquestrado",
+"análise por snapshot" (não "replay") e os nomes das etapas do diagrama (Interpretar a
+issue, Enriquecer contexto da issue, Buscar itens semelhantes, Identificar pessoas
+relacionadas, Localizar elementos de código, Recuperar processo de contribuição,
+Consolidar e priorizar o contexto, Sintetizar guia contextual). Previstos no texto e NÃO
+implementados (não implementar nem anunciar como prontos): modo agente, servidor MCP,
+mineração do histórico Git (relação commit–arquivo) e comparação sistemática entre LLMs.
+Números citados no texto (manter): 43.826 nós, 77.097 relações, 33 testes, 9 consultas
+curadas + 1 livre.
 
 ## Estrutura
 
@@ -35,13 +47,13 @@ docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
 - Teste do ambiente: `uv run src/etl/teste_conexao.py`
 - Carga do grafo: `uv run src/etl/carregar_grafo.py [etapas...] [--limpar]`
   (modelo e decisões em `docs/modelo_grafo.md`; utilitários em `src/etl/comum.py`)
-- Ferramentas do agente: `src/kg_onboarding/ferramentas.py` (registrar com `@ferramenta`,
+- Catálogo de consultas: `src/kg_onboarding/ferramentas.py` (registrar com `@ferramenta`,
   sempre via `grafo.consultar`, que roda em modo leitura); CLI `uv run kg-onboarding`
 - Testes: `uv run pytest` (integração; precisa do Neo4j com o grafo carregado). Ao criar
   ferramenta, acrescente perguntas em `avaliacao/perguntas.jsonl`.
 - Dados de issues/PRs estão incompletos (extração abortada); ver `docs/perguntas_newcomer.md`.
-- Guia de uma issue (arquitetura online, fluxo fixo): `src/kg_onboarding/guia.py`;
-  `uv run kg-onboarding guia <n> [--sem-llm] [--replay] [--json]`. Mapa e resultados: `docs/arquitetura.md`
+- Guia contextual de uma issue (fluxo orquestrado): `src/kg_onboarding/guia.py`;
+  `uv run kg-onboarding guia <n> [--sem-llm] [--snapshot] [--json]` (`--replay` é sinônimo antigo). Mapa e resultados: `docs/arquitetura.md`
 - LLM: acesso só via `src/kg_onboarding/llm.py`, que tem dois provedores com a mesma
   interface (`gerar`/`gerar_json`). Padrão: API do Claude (`claude-haiku-5-5`, o mais barato)
   se houver `ANTHROPIC_API_KEY` no `.env`; senão, Ollama local (`qwen2.5:3b`, temperatura 0,
@@ -58,7 +70,7 @@ docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
   Instruções para testadores: `docs/teste_mvp.md`.
 - Dependências: núcleo enxuto (neo4j, anthropic, python-dotenv); `ollama` é extra
   (`uv sync --extra ollama`); análise (jupyter, polars, duckdb, pydriller) no grupo `analise`.
-- Avaliação por replay: `uv run avaliacao/replay.py` (resultados em `data/avaliacao/`).
+- Análise por snapshot (exploratória): `uv run avaliacao/replay.py` (resultados em `data/avaliacao/`).
   Ao mudar a recuperação, rode de novo e atualize a tabela em `docs/arquitetura.md`.
 - Mineração do repositório Git: adiada por decisão do usuário; não implementar sem pedido.
 - Se houver um `VIRTUAL_ENV` de outro projeto ativo, o uv avisa e o ignora; pode-se rodar `unset VIRTUAL_ENV`.

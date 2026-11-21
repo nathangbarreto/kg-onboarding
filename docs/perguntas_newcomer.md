@@ -1,4 +1,4 @@
-# Perguntas de newcomers e ferramentas do agente
+# Perguntas de newcomers e catálogo de consultas
 
 As perguntas estão agrupadas pelas barreiras mais citadas na literatura sobre
 newcomers em OSS (ex.: Steinmacher et al., 2015: encontrar uma tarefa, encontrar
@@ -28,7 +28,7 @@ uv run kg-onboarding buscar_discussoes texto="bloom filter"
 uv run kg-onboarding detalhes numero=1947
 ```
 
-## Achados que o agente deve saber explicar
+## Achados que o guia contextual deve saber explicar
 
 - **Integração via Google:** muitos PRs aceitos aparecem como *closed* sem *merge*. A
   mudança é importada para o repositório interno do Google e volta por um commit

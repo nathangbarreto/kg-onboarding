@@ -2,17 +2,20 @@
 
 Dois comandos:
 
-    kgo <issue> [--sem-llm] [--json] [--offline]     # guia de uma issue (atalho)
-    kgo --lista                                      # issues com guia pré-gerado
+    kgo <issue> [--sem-llm] [--json] [--offline]     # guia contextual de uma issue (atalho)
+    kgo --lista                                      # issues com guia contextual pré-gerado
 
-    kg-onboarding                                    # lista as ferramentas
-    kg-onboarding <ferramenta> [param=valor ...]     # chama uma ferramenta
-    kg-onboarding guia <issue> [--sem-llm] [--replay] [--json] [--offline]
-    kg-onboarding exportar <issue> [<issue> ...]     # gera guias para o modo offline
+    kg-onboarding                                    # lista o catálogo de consultas
+    kg-onboarding <consulta> [param=valor ...]       # executa uma consulta do catálogo
+    kg-onboarding guia <issue> [--sem-llm] [--snapshot] [--json] [--offline]
+    kg-onboarding exportar <issue> [<issue> ...]     # gera guias contextuais para o modo offline
 
+O guia contextual é produzido pelo fluxo orquestrado de kg_onboarding.guia.
 Modo ao vivo: com o Neo4j configurado e acessível, o guia é montado na hora.
-Modo offline: sem Neo4j (ex.: testadores), usa os guias pré-gerados em
+Modo offline: sem Neo4j (ex.: testadores), usa os guias contextuais pré-gerados em
 kg_onboarding/dados/guias.json, distribuídos dentro do pacote.
+--snapshot (sinônimo antigo: --replay): análise por snapshot, só com o que existia
+na data de criação da issue.
 """
 
 from __future__ import annotations
@@ -22,7 +25,7 @@ import sys
 from datetime import datetime, timezone
 from typing import Any
 
-USO_GUIA = "[--sem-llm] [--replay] [--json] [--offline]"
+USO_GUIA = "[--sem-llm] [--snapshot] [--json] [--offline]"
 
 
 def main() -> None:
@@ -39,7 +42,7 @@ def main() -> None:
     if not args or args[0] in ("-h", "--help"):
         print(f"Uso: kg-onboarding guia <issue> {USO_GUIA}   (atalho: kgo <issue>)")
         print("     kg-onboarding exportar <issue> [<issue> ...]")
-        print("     kg-onboarding <ferramenta> [param=valor ...]\n\nFerramentas:")
+        print("     kg-onboarding <consulta> [param=valor ...]\n\nCatálogo de consultas:")
         for f in FERRAMENTAS.values():
             props = f.parametros["properties"]
             obrig = set(f.parametros["required"])
@@ -49,7 +52,7 @@ def main() -> None:
 
     nome, pares = args[0], args[1:]
     if nome not in FERRAMENTAS:
-        sys.exit(f"Ferramenta desconhecida: {nome}. Rode sem argumentos para ver a lista.")
+        sys.exit(f"Consulta desconhecida: {nome}. Rode sem argumentos para ver o catálogo.")
     f = FERRAMENTAS[nome]
     kwargs = {}
     for par in pares:
@@ -66,7 +69,7 @@ def kgo() -> None:
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
         print(f"Uso: kgo <número da issue> {USO_GUIA}\n     kgo --lista\n")
-        print("Mostra um guia para começar a trabalhar em uma issue do google/guava:")
+        print("Mostra um guia contextual para começar a trabalhar em uma issue do google/guava:")
         print("resumo, discussões relacionadas, onde investigar no código, com quem falar")
         print("e como contribuir.")
         return
@@ -87,7 +90,8 @@ def _guia(args: list[str]) -> None:
     if len(numeros) != 1 or not numeros[0].lstrip("#").isdigit():
         sys.exit(f"Uso: kgo <número da issue> {USO_GUIA}")
     numero = int(numeros[0].lstrip("#"))
-    sem_llm, replay, como_json = "--sem-llm" in args, "--replay" in args, "--json" in args
+    sem_llm, como_json = "--sem-llm" in args, "--json" in args
+    replay = "--snapshot" in args or "--replay" in args  # análise por snapshot
 
     if "--offline" in args or not grafo.disponivel():
         resultado = _guia_offline(numero, replay)
@@ -109,7 +113,7 @@ def _guia_ao_vivo(numero: int, replay: bool, sem_llm: bool) -> dict[str, Any]:
     if sem_llm:
         resultado = coletar_contexto(numero, replay=replay)
     else:
-        print(f"Gerando guia com {llm.MODELO} ({llm.PROVEDOR})...", file=sys.stderr)
+        print(f"Gerando guia contextual com {llm.MODELO} ({llm.PROVEDOR})...", file=sys.stderr)
         resultado = gerar_guia(numero, replay=replay)
     if resultado is None:
         sys.exit(f"Issue #{numero} não encontrada no grafo.")
@@ -120,26 +124,26 @@ def _carregar_offline() -> dict[str, Any]:
     from kg_onboarding.config import ARQUIVO_GUIAS
 
     if not ARQUIVO_GUIAS.is_file():
-        sys.exit("Sem conexão com o grafo e sem guias pré-gerados neste pacote.")
+        sys.exit("Sem conexão com o grafo e sem guias contextuais pré-gerados neste pacote.")
     return json.loads(ARQUIVO_GUIAS.read_text(encoding="utf-8"))
 
 
 def _guia_offline(numero: int, replay: bool) -> dict[str, Any]:
     if replay:
-        sys.exit("--replay precisa do grafo (modo ao vivo).")
+        sys.exit("--snapshot precisa do grafo (modo ao vivo).")
     pacote = _carregar_offline()
     resultado = pacote["guias"].get(str(numero))
     if resultado is None:
         disponiveis = ", ".join(sorted(pacote["guias"], key=int))
-        sys.exit(f"Não há guia pré-gerado para a issue #{numero}.\n"
+        sys.exit(f"Não há guia contextual pré-gerado para a issue #{numero}.\n"
                  f"Issues disponíveis: {disponiveis}\n(kgo --lista mostra os títulos)")
-    print(f"(modo offline: guia gerado em {pacote['meta']['gerado_em'][:10]})", file=sys.stderr)
+    print(f"(modo offline: guia contextual gerado em {pacote['meta']['gerado_em'][:10]})", file=sys.stderr)
     return resultado
 
 
 def _listar_offline() -> None:
     pacote = _carregar_offline()
-    print(f"Guias pré-gerados ({len(pacote['guias'])}), modelo {pacote['meta']['modelo']}:\n")
+    print(f"Guias contextuais pré-gerados ({len(pacote['guias'])}), modelo {pacote['meta']['modelo']}:\n")
     for n, g in sorted(pacote["guias"].items(), key=lambda kv: int(kv[0])):
         print(f"  {n:>5}  {g['contexto']['issue']['titulo'][:90]}")
 
@@ -155,7 +159,7 @@ def _imprimir(numero: int, resultado: dict[str, Any], sem_llm: bool, como_json: 
         return
     m = resultado["metricas"]
     i = resultado["contexto"]["issue"]
-    print(f"# Guia para a issue #{numero}: {i['titulo']}\n")
+    print(f"# Guia contextual para a issue #{numero}: {i['titulo']}\n")
     print(resultado["guia"])
     s = m["sintese"].get("original", m["sintese"])
     print(f"\n---\n_Modelo {s['modelo']} · {s['tokens_entrada']} tokens de entrada na síntese"
@@ -172,7 +176,7 @@ def _custo(metricas: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def _exportar(args: list[str]) -> None:
-    """Gera (ou atualiza) os guias pré-gerados distribuídos no pacote."""
+    """Gera (ou atualiza) os guias contextuais pré-gerados distribuídos no pacote."""
     from kg_onboarding import grafo, llm
     from kg_onboarding.config import ARQUIVO_GUIAS
     from kg_onboarding.guia import gerar_guia
@@ -198,5 +202,5 @@ def _exportar(args: list[str]) -> None:
                       "modelo": llm.MODELO, "provedor": llm.PROVEDOR, "issues": len(pacote["guias"])}
     ARQUIVO_GUIAS.parent.mkdir(parents=True, exist_ok=True)
     ARQUIVO_GUIAS.write_text(json.dumps(pacote, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"{len(pacote['guias'])} guias em {ARQUIVO_GUIAS} · custo desta exportação US$ {custo:.4f}",
+    print(f"{len(pacote['guias'])} guias contextuais em {ARQUIVO_GUIAS} · custo desta exportação US$ {custo:.4f}",
           file=sys.stderr)

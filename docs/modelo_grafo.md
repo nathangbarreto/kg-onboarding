@@ -38,7 +38,7 @@ graph LR
 | User | `id` | users | `:Contributor` (+`contributions`) e `:Watcher` são labels extras |
 | Issue | `id` | issues | `labels` é lista de strings (ex.: `package=cache`) |
 | PullRequest | `id` | pull_requests | inclui `merged`, `additions`, `head_ref`, `base_ref` |
-| Commit | `sha` | commits | `in_dataset = true` só para os 7.503 da tabela; os demais são *stubs* (só `sha`) criados por tags, branches, workflows e PRs |
+| Commit | `sha` | commits | `in_dataset = true` para os 7.503 da tabela; os demais são *stubs* (só `sha`) criados por tags, branches, workflows e PRs, com `in_dataset = false` |
 | TimelineEvent | `key` = `source:source_id:position` | timeline_items | `type`, `created_at`, `body` (comentários), `commit_id`, `label_name`, `review_state` |
 | Milestone | `id` | milestones | |
 | CommitComment | `id` | commit_comments | |
@@ -81,7 +81,7 @@ graph LR
    referência (stubs). PyDriller pode completar autor, data, mensagem e arquivos.
 3. **Arquivos.** `File` hoje só vem de comentários em commit. Com PyDriller entra
    `(Commit)-[:MODIFIES {added, deleted}]->(File)`, essencial para "quem conhece este código".
-4. **Labels** estão como lista de strings. Se o agente precisar navegar por categoria
+4. **Labels** estão como propriedade do tipo lista. Se o fluxo precisar navegar por categoria
    (`package=*`, `type=*`, `status=*`), vale criar nós `Label` ou `Package`.
 5. **Ruído:** `gissuebot` (id 8091570) é o bot da migração do Google Code e é autor
    de muitas issues antigas e comentários; `copybara-service[bot]` faz muitos merges.

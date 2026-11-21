@@ -1,15 +1,21 @@
-"""Atendimento à solicitação do newcomer: do número da issue ao guia de contribuição.
+"""Fluxo orquestrado de atendimento ao newcomer: do número da issue ao guia contextual.
 
-Etapas da arquitetura (docs/arquitetura.md):
-  2.3 Enriquecimento contextual  -> itens semelhantes, pessoas, código citado
-  2.4 Consolidação               -> ranqueamento e corte
+As etapas são sempre executadas na mesma ordem (ver docs/arquitetura.md):
 
-As etapas 2.2 (interpretação) e 2.5 (síntese) usam o LLM (ver llm.py) e
-estão em `gerar_guia`, no fim deste módulo.
+  Interpretar a issue                    interpretar (LLM) ou termos_heuristicos (sem LLM)
+  Enriquecer contexto da issue           coletar_contexto, com quatro consultas em sequência:
+    Buscar itens semelhantes               _semelhantes (índice de texto completo)
+    Identificar pessoas relacionadas       _pessoas (usa os itens semelhantes encontrados)
+    Localizar elementos de código          elementos_de_codigo (nomes citados no texto) e
+                                           arquivos discutidos em revisões (em _semelhantes)
+    Recuperar processo de contribuição     ferramentas.processo_de_contribuicao
+  Consolidar e priorizar o contexto      fundir_pessoas (reciprocal rank fusion), cortes
+  Sintetizar guia contextual             gerar_guia -> _contexto_compacto + LLM
 
-Modo replay: com `replay=True`, só se usa o que existia antes da criação da
-issue (itens criados antes, eventos anteriores, estado da época). Isso permite
-avaliar o contexto comparando com o que de fato aconteceu depois.
+Análise por snapshot: com `replay=True` (opção --snapshot na CLI), só se usa o que
+existia antes da criação da issue (itens criados antes, eventos anteriores, estado
+e estatísticas de processo da época). Isso permite comparar o contexto com o que de
+fato aconteceu depois (avaliacao/replay.py).
 """
 
 from __future__ import annotations
@@ -34,13 +40,14 @@ N_PESSOAS = 6
 
 
 def termos_heuristicos(titulo: str, corpo: str | None) -> list[str]:
-    """Termos de busca sem LLM: palavras do título (sem stopwords) + código citado."""
+    """Interpretar a issue (alternativa sem LLM): palavras do título sem stopwords + código citado."""
     palavras = [w for w in re.findall(r"[A-Za-z][A-Za-z0-9]+", titulo)
                 if w.lower() not in STOPWORDS and len(w) > 2]
     return list(dict.fromkeys(palavras + elementos_de_codigo(titulo, corpo)[:5]))
 
 
 def elementos_de_codigo(titulo: str, corpo: str | None) -> list[str]:
+    """Localizar elementos de código: classes e métodos citados no texto da issue."""
     achados = _CODIGO.findall(f"{titulo}\n{corpo or ''}")
     return [a for a, _ in sorted(((a, achados.count(a)) for a in set(achados)),
                                  key=lambda x: -x[1])][:10]
@@ -70,6 +77,8 @@ _ALVO = """
 
 
 def _semelhantes(numero: int, consulta: str, replay: bool) -> list[dict]:
+    """Buscar itens semelhantes: estado, motivo do fechamento, commits que os resolveram
+    e arquivos discutidos em revisões de commits ligados a eles."""
     if not consulta:
         return []
     return consultar(_ALVO + """
@@ -93,7 +102,8 @@ def _semelhantes(numero: int, consulta: str, replay: bool) -> list[dict]:
 
 def _pessoas(numero: int, numeros_semelhantes: list[int], pacotes: list[str],
              autor: str | None, replay: bool) -> list[dict]:
-    """Quem participou dos itens semelhantes (peso 2) e de itens do mesmo pacote (peso 1)."""
+    """Identificar pessoas relacionadas: quem participou dos itens semelhantes (peso 2)
+    e de itens do mesmo pacote (peso 1)."""
     return consultar(_ALVO + f"""
         CALL (alvo, ate) {{
             MATCH (n) WHERE (n:Issue OR n:PullRequest) AND n.number IN $semelhantes
@@ -127,7 +137,7 @@ def _pessoas(numero: int, numeros_semelhantes: list[int], pacotes: list[str],
 
 
 def mantenedores_ativos(numero: int, autor: str | None, replay: bool) -> list[dict]:
-    """Quem mais fechou issues/PRs (até a data da issue, no replay): quem costuma responder."""
+    """Quem mais fechou issues/PRs (até a data da issue, na análise por snapshot): quem costuma responder."""
     return consultar(_ALVO + f"""
         MATCH (u:User)-[:PERFORMED]->(e:TimelineEvent {{type: 'closed'}})
         WHERE (ate IS NULL OR e.created_at < ate) AND {FILTRO_HUMANO}
@@ -138,9 +148,10 @@ def mantenedores_ativos(numero: int, autor: str | None, replay: bool) -> list[di
 
 def fundir_pessoas(da_area: list[dict], ativos: list[dict], k: int = N_PESSOAS,
                    rrf_k: int = 60) -> list[dict]:
-    """Reciprocal rank fusion: quem atua na área + quem costuma responder.
+    """Consolidar e priorizar o contexto: reciprocal rank fusion entre quem atua na
+    área e quem costuma responder, com o motivo de cada sugestão.
 
-    No replay (459 issues), a fusão 1:1 superou as duas listas isoladas em hit@3
+    Na análise por snapshot (459 issues), a fusão 1:1 superou as duas listas isoladas em hit@3
     (0,47 vs 0,38 da área e 0,44 dos mantenedores). Ver avaliacao/replay.py.
     """
     pontos: dict[str, float] = {}
@@ -161,7 +172,7 @@ def fundir_pessoas(da_area: list[dict], ativos: list[dict], k: int = N_PESSOAS,
 
 def coletar_contexto(numero: int, replay: bool = False,
                      termos: list[str] | None = None) -> dict[str, Any] | None:
-    """Contexto consolidado de uma issue, pronto para a síntese pelo LLM."""
+    """Enriquecer contexto da issue e consolidá-lo, pronto para a síntese pelo LLM."""
     issue = _issue(numero)
     if issue is None:
         return None
@@ -176,7 +187,7 @@ def coletar_contexto(numero: int, replay: bool = False,
     arquivos = list(dict.fromkeys(p for s in semelhantes for p in s.pop("arquivos")))
     return {
         "issue": {**issue, "corpo": (issue["corpo"] or "")[:3000]},
-        "modo": "replay (só informações anteriores à issue)" if replay else "atual",
+        "modo": "snapshot (só informações anteriores à issue)" if replay else "atual",
         "termos_de_busca": termos,
         "itens_semelhantes": semelhantes,
         "pessoas": pessoas,
@@ -184,8 +195,8 @@ def coletar_contexto(numero: int, replay: bool = False,
             "elementos_citados": elementos_de_codigo(issue["titulo"], issue["corpo"]),
             "arquivos_em_revisoes": arquivos[:10],
         },
-        # Estatística global (não filtrada no tempo): orientação sobre o processo.
-        "processo": processo_de_contribuicao(),
+        # Recuperar processo de contribuição (no snapshot, só o que existia na data da issue)
+        "processo": processo_de_contribuicao(ate=issue["criada_em"] if replay else None),
     }
 
 
@@ -216,7 +227,7 @@ def formatar_markdown(ctx: dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------------
-# 2.2 Interpretação e 2.5 Síntese (LLM)
+# Interpretar a issue e Sintetizar guia contextual (LLM)
 # ---------------------------------------------------------------------------
 
 TIPOS = ["bug", "melhoria", "nova_api", "desempenho", "documentacao", "pergunta", "outro"]
@@ -266,6 +277,7 @@ Responda em Markdown com exatamente estas seis seções, nesta ordem:
 
 
 def interpretar(issue: dict) -> tuple[dict, dict]:
+    """Interpretar a issue: saída estruturada validada pelo ESQUEMA_INTERPRETACAO."""
     texto = f"Título: {issue['titulo']}\nLabels: {', '.join(issue['labels']) or '—'}\n\n" \
             f"{(issue['corpo'] or '')[:2500]}"
     return gerar_json(SISTEMA_INTERPRETACAO, texto, ESQUEMA_INTERPRETACAO)
@@ -276,7 +288,7 @@ def _contexto_compacto(ctx: dict, interpretacao: dict | None) -> str:
     i = ctx["issue"]
     partes = [f"ISSUE #{i['numero']}: {i['titulo']}",
               f"Criada em: {i['criada_em'][:10]} · estado: "
-              f"{'aberta (momento da criação)' if ctx['modo'].startswith('replay') else i['estado']}",
+              f"{'aberta (momento da criação)' if ctx['modo'].startswith('snapshot') else i['estado']}",
               f"Labels: {', '.join(i['labels']) or '—'}"]
     if interpretacao:
         partes.append(f"Interpretação: {interpretacao['objetivo']} (tipo: {interpretacao['tipo']})")
@@ -311,7 +323,7 @@ def _contexto_compacto(ctx: dict, interpretacao: dict | None) -> str:
 
 
 def gerar_guia(numero: int, replay: bool = False) -> dict[str, Any] | None:
-    """Fluxo completo: interpretação -> enriquecimento -> consolidação -> síntese."""
+    """Fluxo orquestrado completo: interpretar -> enriquecer -> consolidar -> sintetizar guia contextual."""
     issue = _issue(numero)
     if issue is None:
         return None

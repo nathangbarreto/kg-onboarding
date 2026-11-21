@@ -259,7 +259,7 @@ def etapa_timeline(db, driver) -> dict[str, int]:
     """timeline_items -> issues/PRs.
 
     Cada item vira um nó TimelineEvent (guarda o histórico e o texto dos
-    comentários para o agente). Os tipos com significado estrutural também
+    comentários para o guia contextual). Os tipos com significado estrutural também
     viram arestas diretas, mais fáceis de consultar.
     """
     issue_ids = {r[0] for r in db.execute("SELECT id FROM issues")}
@@ -535,6 +535,15 @@ ETAPAS: dict[str, Callable] = {
 }
 
 
+def marcar_commits_referencia(driver: Driver) -> int:
+    """Commits citados só como referência (sha vindo de tags, branches, workflows,
+    PRs ou comentários) recebem in_dataset = false; os 7.503 da tabela `commits`
+    recebem true na etapa de commits. Roda ao fim de qualquer carga (idempotente)."""
+    r, _, _ = driver.execute_query(
+        "MATCH (c:Commit) WHERE c.in_dataset IS NULL SET c.in_dataset = false RETURN count(c) AS n")
+    return r[0]["n"]
+
+
 def resumo(driver: Driver) -> None:
     nos, _, _ = driver.execute_query(
         "MATCH (n) UNWIND labels(n) AS label RETURN label, count(*) AS n ORDER BY n DESC")
@@ -570,6 +579,7 @@ def main() -> None:
             print(f"[{nome}] {time.perf_counter() - t0:.1f}s")
             for desc, n in res.items():
                 print(f"    {desc:<55} {n:>6} linhas")
+        print(f"[commits só de referência] in_dataset = false em {marcar_commits_referencia(driver)} novos")
         resumo(driver)
 
 

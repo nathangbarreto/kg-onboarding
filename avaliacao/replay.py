@@ -1,6 +1,7 @@
-"""Avaliação por replay histórico da recuperação de contexto (sem LLM).
+"""Análise por snapshot (exploratória) da recuperação de contexto (sem LLM).
 
-Para cada issue, monta o contexto só com o que existia antes da sua criação
+Para cada issue, reconstrói o estado do grafo na data de criação e monta o
+contexto só com o que existia antes dela, sem informação futura
 (guia.coletar_contexto(replay=True)) e compara com o que aconteceu depois:
 
 - itens relacionados: issues/PRs anteriores ligados à issue por referência
@@ -9,13 +10,13 @@ Para cada issue, monta o contexto só com o que existia antes da sua criação
   (sem o autor e sem bots)
 
 Baseline de pessoas: só os mantenedores ativos (quem mais fechou issues/PRs até a
-data). O guia funde essa lista com quem atua na área da issue.
+data). O guia contextual funde essa lista com quem atua na área da issue.
 
 Uso:
     uv run avaliacao/replay.py              # todas as issues com gabarito
     uv run avaliacao/replay.py --limite 50  # amostra uniforme, para testes rápidos
     uv run avaliacao/replay.py --llm        # termos de busca vindos do LLM (lento na CPU)
-Resultados por issue: data/avaliacao/replay_<data>.jsonl
+Resultados por issue: data/avaliacao/snapshot_<data>.jsonl
 """
 
 from __future__ import annotations
@@ -65,7 +66,7 @@ def acerto(sugeridos: list, esperados: list, k: int) -> tuple[float, float]:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="Análise por snapshot (exploratória)")
     ap.add_argument("--limite", type=int, help="avaliar uma amostra uniforme de N issues")
     ap.add_argument("--llm", action="store_true",
                     help="termos de busca da interpretação pelo LLM (ver llm.py) em vez da heurística")
@@ -77,7 +78,7 @@ def main() -> None:
         casos = casos[::passo][: args.limite]
 
     SAIDA.mkdir(parents=True, exist_ok=True)
-    arquivo = SAIDA / f"replay_{'llm_' if args.llm else ''}{datetime.now():%Y%m%d_%H%M%S}.jsonl"
+    arquivo = SAIDA / f"snapshot_{'llm_' if args.llm else ''}{datetime.now():%Y%m%d_%H%M%S}.jsonl"
     res = []
     with arquivo.open("w") as f:
         for n, g in enumerate(casos, 1):
@@ -107,9 +108,9 @@ def main() -> None:
         v = [r[chave] for r in res if chave in r]
         return f"{mean(v):.3f} (n={len(v)})" if v else "—"
 
-    print(f"\nIssues avaliadas: {len(res)} · detalhes em {arquivo.relative_to(RAIZ)}\n")
+    print(f"\nAnálise por snapshot · issues avaliadas: {len(res)} · detalhes em {arquivo.relative_to(RAIZ)}\n")
     print(f"Itens relacionados  hit@{N_SEMELHANTES}: {media('itens_hit')}  recall@{N_SEMELHANTES}: {media('itens_recall')}")
-    print(f"Pessoas (guia)      hit@3: {media('pessoas_hit3')}  hit@{N_PESSOAS}: {media('pessoas_hit')}  recall@{N_PESSOAS}: {media('pessoas_recall')}")
+    print(f"Pessoas (guia ctx.) hit@3: {media('pessoas_hit3')}  hit@{N_PESSOAS}: {media('pessoas_hit')}  recall@{N_PESSOAS}: {media('pessoas_recall')}")
     print(f"Pessoas (baseline)  hit@3: {media('base_hit3')}  hit@{N_PESSOAS}: {media('base_hit')}  recall@{N_PESSOAS}: {media('base_recall')}")
 
 

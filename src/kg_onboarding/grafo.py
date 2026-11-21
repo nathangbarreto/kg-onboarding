@@ -1,4 +1,4 @@
-"""Acesso somente leitura ao grafo para as ferramentas do agente."""
+"""Acesso somente leitura ao grafo de conhecimento (catálogo de consultas e fluxo orquestrado)."""
 
 from __future__ import annotations
 

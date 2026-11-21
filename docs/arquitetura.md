@@ -7,20 +7,21 @@
 | 1.1 Seleção do repositório | google/guava | Feita (critérios a documentar) |
 | 1.2 Mineração | SQLite extraído da API do GitHub | Parcial: coleta de issues/PRs abortada; repositório Git não minerado (planejado para depois) |
 | 1.3 Normalização e relações | [src/etl/carregar_grafo.py](../src/etl/carregar_grafo.py), decisões em [modelo_grafo.md](modelo_grafo.md) | Feita |
-| 1.4 Construção do grafo | Neo4j 5.26 + GDS | Feita |
+| 1.4 Construção do grafo de conhecimento | Neo4j 5.26 (43.826 nós, 77.097 relações) | Feita |
 
 ## 2. Atendimento à solicitação do newcomer (online)
 
-Fluxo fixo, não um agente livre: as etapas são chamadas sempre na mesma ordem,
-o que torna o resultado reprodutível e cada etapa avaliável separadamente.
+Fluxo orquestrado: as etapas são chamadas sempre na mesma ordem, o que torna o
+resultado reprodutível e cada etapa avaliável separadamente. O modo agente, em que o
+LLM escolhe as consultas, é trabalho previsto e não está implementado.
 
 | Etapa | Implementação | Situação |
 |---|---|---|
-| 2.1 Seleção da issue | `uv run kg-onboarding guia <numero>` | Feita (linha de comando) |
-| 2.2 Interpretação | `guia.interpretar`: LLM → objetivo, tipo, termos de busca em inglês, código citado (JSON validado por esquema) | Feita (Ollama). Sem LLM: `termos_heuristicos` |
-| 2.3 Enriquecimento | [src/kg_onboarding/guia.py](../src/kg_onboarding/guia.py) | Feita: itens semelhantes (busca textual), pessoas, código citado, processo |
-| 2.4 Consolidação | `guia.coletar_contexto` | Feita: ranqueamento, fusão de listas de pessoas, cortes |
-| 2.5 Síntese | `guia.gerar_guia`: LLM → guia em Markdown com seis seções fixas | Feita (Ollama). Sem LLM: `formatar_markdown` mostra o contexto |
+| 2.1 Seleção da issue | `kgo <numero>` ou `kg-onboarding guia <numero>` | Feita (linha de comando) |
+| 2.2 Interpretar a issue | `guia.interpretar`: LLM → objetivo, tipo, termos de busca em inglês, código citado (saída validada por esquema) | Feita (Claude Haiku 5.5 ou Qwen 2.5:3b). Sem LLM: `termos_heuristicos` |
+| 2.3 Enriquecer contexto da issue | [guia.coletar_contexto](../src/kg_onboarding/guia.py), quatro consultas em sequência: Buscar itens semelhantes, Identificar pessoas relacionadas (usa os itens semelhantes), Localizar elementos de código, Recuperar processo de contribuição | Feita |
+| 2.4 Consolidar e priorizar o contexto | `guia.fundir_pessoas` (*reciprocal rank fusion*) e cortes | Feita |
+| 2.5 Sintetizar guia contextual | `guia.gerar_guia`: LLM → guia contextual em Markdown com seis seções fixas | Feita. Sem LLM: `formatar_markdown` mostra o contexto |
 
 ### O que cada seção do contexto contém
 
@@ -32,11 +33,22 @@ o que torna o resultado reprodutível e cada etapa avaliável separadamente.
 - **Código:** classes e métodos citados no texto (`BloomFilter`, `Lists.newArrayList`)
   e arquivos discutidos em revisões de commits. **Limitação:** sem a mineração do
   Git não há ligação commit → arquivo, então "arquivos envolvidos" é fraco por ora.
-- **Processo:** aceitação e tempo até a decisão por vínculo do autor (estatística global).
+- **Processo:** aceitação e tempo até a decisão por vínculo do autor (estatística do
+  repositório; na análise por snapshot, só com os PRs existentes na data da issue).
 
 Labels `status=*` são removidas da issue para não revelar o desfecho.
 
-## LLM local (Ollama)
+## LLM (provedores intercambiáveis)
+
+O acesso ao LLM fica em [llm.py](../src/kg_onboarding/llm.py). Toda chamada registra
+provedor, modelo, tokens, tempo e custo estimado, e um cache em disco faz entradas
+idênticas produzirem a mesma resposta.
+
+- **Claude Haiku 5.5** (padrão com chave de API): nos 10 guias contextuais pré-gerados,
+  US$ 0,00087–0,00107 (média 0,00096) e 6,3–10,2 s (média 7,5 s) por guia.
+- **Qwen 2.5:3b via Ollama** (local), detalhado abaixo.
+
+### Ollama (local)
 
 - Modelo `qwen2.5:3b` (3 bilhões de parâmetros, ~2 GB), container `ollama-mestrado`,
   só CPU (16 threads, sem GPU). Temperatura 0 e semente fixa para reprodutibilidade.
@@ -54,22 +66,29 @@ Observações qualitativas (issue #2098):
 - Restam limitações de um modelo pequeno: comenta pouco o desfecho dos itens
   semelhantes e "Onde investigar" fica raso (sem mineração, não há arquivos).
 
-## Avaliação por replay histórico
+## Análise por snapshot (exploratória)
 
-[avaliacao/replay.py](../avaliacao/replay.py) monta o contexto de cada issue só com o
-que existia antes da sua criação e compara com o que aconteceu depois. Mede a
+[avaliacao/replay.py](../avaliacao/replay.py) reconstrói o estado do grafo na data de
+criação de cada issue, monta o contexto só com o que existia antes dela, sem informação
+futura, e o compara com o que aconteceu depois. É uma análise exploratória, ainda a
+amadurecer. Mede a
 recuperação, que é o que alimenta a síntese (a qualidade do texto final ainda não é
 avaliada). Por padrão não usa LLM; com `--llm`, os termos de busca vêm da interpretação.
 
 Resultados (2026-11-05, 459 issues com gabarito, recuperação sem LLM):
 
-| Métrica | Guia | Baseline (só mantenedores ativos) |
+| Métrica | Guia contextual | Baseline (só mantenedores ativos) |
 |---|---|---|
 | Itens relacionados, hit@8 (n=112) | 0,616 | — |
 | Itens relacionados, recall@8 | 0,401 | — |
 | Pessoas, hit@3 (n=381) | **0,478** | 0,438 |
 | Pessoas, hit@6 | 0,630 | 0,640 |
 | Pessoas, recall@6 | 0,533 | 0,535 |
+
+Reexecuções em 2026-11-21 (com o código anterior e com o atual) ficaram nestas faixas:
+pessoas hit@3 0,480–0,486, hit@6 0,630–0,635, recall@6 0,533–0,538; itens recall@8
+0,398–0,401 (hit@8 e baseline sem variação). A variação entre execuções vem de empates
+na ordenação das consultas (`ORDER BY ... LIMIT` sem critério de desempate).
 
 Observações:
 - Só com a participação em itens da área, o guia perdia para o baseline (hit@3 0,375):
@@ -82,7 +101,7 @@ Observações:
 - Os números refletem os dados atuais (issues de 2014–2017). Repetir após completar
   a extração e a mineração.
 - **1.152 das 1.446 issues (80 %) foram criadas em 31/10/2014**, data da migração do
-  Google Code. No replay, elas só "enxergam" issues migradas minutos antes, não o
+  Google Code. No snapshot, elas só "enxergam" issues migradas minutos antes, não o
   histórico real. Por isso `--limite` usa amostra espaçada, não os primeiros números.
 
 ### Interpretação pelo LLM vs. heurística (amostra de 60 issues)

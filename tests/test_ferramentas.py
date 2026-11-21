@@ -77,11 +77,20 @@ def test_contexto_tem_todas_as_secoes():
 
 
 def test_replay_nao_usa_informacao_futura():
-    criada = coletar_contexto(2098)["issue"]["criada_em"]
-    numeros = [s["numero"] for s in coletar_contexto(2098, replay=True)["itens_semelhantes"]]
+    """Análise por snapshot: nada do contexto pode ser posterior à criação da issue."""
+    atual = coletar_contexto(2098)
+    snapshot = coletar_contexto(2098, replay=True)
+    criada = atual["issue"]["criada_em"]
+    numeros = [s["numero"] for s in snapshot["itens_semelhantes"]]
     datas = consultar_cypher(
         f"MATCH (n) WHERE (n:Issue OR n:PullRequest) AND n.number IN {numeros} RETURN n.created_at AS d")
     assert all(d["d"] < criada for d in datas)
+    # estatísticas do processo de contribuição só com PRs abertos antes da data
+    prs_antes = consultar_cypher(
+        f"MATCH (:User)-[:OPENED]->(p:PullRequest) WHERE p.created_at < datetime('{criada}') "
+        "RETURN count(p) AS n")[0]["n"]
+    assert sum(r["prs"] for r in snapshot["processo"]) <= prs_antes
+    assert sum(r["prs"] for r in snapshot["processo"]) < sum(r["prs"] for r in atual["processo"])
 
 
 def test_issue_inexistente():
@@ -129,8 +138,12 @@ def test_interpretacao_segue_o_esquema():
 
 
 # ---------------------------------------------------------------------------
-# Guias pré-gerados (modo offline, distribuídos no pacote)
+# Guias contextuais pré-gerados (modo offline, distribuídos no pacote)
 # ---------------------------------------------------------------------------
+
+SECOES_DO_GUIA = ["## Resumo da issue", "## O que já foi discutido", "## Onde investigar no código",
+                  "## Com quem falar", "## Como contribuir no Guava", "## Próximos passos"]
+
 
 def test_guias_pre_gerados_sao_validos():
     from kg_onboarding.config import ARQUIVO_GUIAS
@@ -138,4 +151,7 @@ def test_guias_pre_gerados_sao_validos():
     assert pacote["meta"]["issues"] == len(pacote["guias"]) > 0
     for numero, g in pacote["guias"].items():
         assert g["guia"].strip() and g["contexto"]["issue"]["numero"] == int(numero)
+        # as seis seções fixas, todas presentes e na ordem prevista
+        posicoes = [g["guia"].find(s) for s in SECOES_DO_GUIA]
+        assert -1 not in posicoes and posicoes == sorted(posicoes), f"#{numero}: seções {posicoes}"
     assert "sk-ant" not in ARQUIVO_GUIAS.read_text(encoding="utf-8")  # nada sensível no pacote
