@@ -68,7 +68,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limite", type=int, help="avaliar uma amostra uniforme de N issues")
     ap.add_argument("--llm", action="store_true",
-                    help="termos de busca da interpretação pelo LLM (Ollama) em vez da heurística")
+                    help="termos de busca da interpretação pelo LLM (ver llm.py) em vez da heurística")
     args = ap.parse_args()
 
     casos = [g for g in gabarito() if g["pessoas"] or g["relacionados"]]

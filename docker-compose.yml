@@ -8,7 +8,7 @@ services:
     environment:
       NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
       NEO4J_PLUGINS: '["graph-data-science"]'
-      NEO4J_server_memory_heap_max__size: 2G
+      NEO4J_server_memory_heap_max__size: ${NEO4J_HEAP:-2G}
     volumes:
       - ./neo4j/data:/data
       - ./neo4j/logs:/logs
@@ -17,6 +17,7 @@ services:
   ollama:
     image: ollama/ollama:0.40.14
     container_name: ollama-mestrado
+    profiles: ["ollama"]   # opcional: docker compose --profile ollama up -d
     ports:
       - "11434:11434"
     volumes:

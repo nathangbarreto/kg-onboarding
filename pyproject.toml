@@ -1,30 +1,41 @@
 [project]
 name = "kg-onboarding"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "Guia de contexto para newcomers em issues do google/guava, a partir de um grafo de conhecimento"
 readme = "README.md"
 authors = [
     { name = "Nathan Gabriel Barreto Santos", email = "nathan.santos@ufms.br" }
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "duckdb>=2.0.0",
-    "jupyter>=1.1.1",
+    "anthropic>=2.6.0",
     "neo4j>=6.4.1",
-    "ollama>=0.6.3",
-    "polars>=2.1.0",
-    "pydriller>=2.12",
     "python-dotenv>=1.2.4",
 ]
 
 [project.scripts]
 kg-onboarding = "kg_onboarding:main"
+kgo = "kg_onboarding:kgo"
+
+[project.optional-dependencies]
+ollama = [
+    "ollama>=0.6.3",
+]
 
 [build-system]
 requires = ["uv_build>=0.13.7,<0.14.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
+analise = [
+    "duckdb>=2.0.0",
+    "jupyter>=1.1.1",
+    "polars>=2.1.0",
+    "pydriller>=2.12",
+]
 dev = [
     "pytest>=9.2.0",
 ]
+
+[tool.uv]
+default-groups = ["dev", "analise"]

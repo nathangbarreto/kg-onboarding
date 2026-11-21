@@ -5,14 +5,12 @@ from __future__ import annotations
 import os
 import re
 from functools import cache
-from pathlib import Path
 from typing import Any
 
-from dotenv import load_dotenv
 from neo4j import Driver, GraphDatabase, RoutingControl
 from neo4j.time import Date, DateTime
 
-RAIZ = Path(__file__).resolve().parents[2]
+from kg_onboarding.config import RAIZ, neo4j_configurado  # noqa: F401  (RAIZ reexportado)
 
 # Contas automatizadas ou de migração que distorcem análises sobre pessoas.
 # Além delas, qualquer User com type = 'Bot' é ignorado.
@@ -28,11 +26,21 @@ _ESCRITA = re.compile(
 
 @cache
 def driver() -> Driver:
-    load_dotenv(RAIZ / ".env")
     return GraphDatabase.driver(
         os.environ["NEO4J_URI"],
         auth=(os.environ["NEO4J_USER"], os.environ["NEO4J_PASSWORD"]),
     )
+
+
+def disponivel() -> bool:
+    """O grafo está configurado e acessível? (decide entre modo ao vivo e offline)."""
+    if not neo4j_configurado():
+        return False
+    try:
+        driver().verify_connectivity()
+        return True
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def _serializavel(valor: Any) -> Any:

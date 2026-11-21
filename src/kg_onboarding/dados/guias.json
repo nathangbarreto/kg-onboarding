@@ -1,0 +1,2663 @@
+{
+ "guias": {
+  "2098": {
+   "interpretacao": {
+    "objetivo": "Propor que o BloomFilter do Guava deixe de armazenar os bits em um único long[] final, que causa OutOfMemoryError com números enormes de inserções esperadas, sugerindo armazenar os dados em blocos menores (ex.: HashMap de arrays de long), e perguntar se a funcionalidade seria útil para outros usuários.",
+    "tipo": "melhoria",
+    "termos_busca": [
+     "bloom filter",
+     "OutOfMemoryError",
+     "large bit array",
+     "expected insertions",
+     "long array",
+     "memory usage",
+     "partitioned bloom filter"
+    ],
+    "elementos_codigo": [
+     "BloomFilter",
+     "BitArray",
+     "long[] data",
+     "HashMap<Integer, Long[]>"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 2098,
+     "titulo": "bloom filter use \"final long[] data\" memorize bit data cause OutOfMemoryError when a huge number of expected insertions",
+     "corpo": "bloom filter apply to filter big data usually, maybe billions of records, when the number of expected insertions is 10 billion and the false positive probability is 0.0001, it will take about 22G RAM, it not appropriate memorize by long array, I changed the type to \"HashMap&lt;Integer, Long[]&gt;\", ensure long array less than 20M, does this feather useful to somebody others ?\n",
+     "estado": "closed",
+     "labels": [
+      "type=enhancement",
+      "package=hash"
+     ],
+     "criada_em": "2015-07-02T03:47:33.000000000+00:00",
+     "autor": "hugeboris"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "bloom filter",
+     "OutOfMemoryError",
+     "large bit array",
+     "expected insertions",
+     "long array",
+     "memory usage",
+     "partitioned bloom filter",
+     "BloomFilter",
+     "BitArray",
+     "long[] data",
+     "HashMap<Integer, Long[]>"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 1067,
+      "titulo": "Bloom filter : changing expected insertions number from int to long",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "type=enhancement",
+       "package=hash"
+      ],
+      "relevancia": 33.22,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2520,
+      "titulo": "[documentation] - Any rough guidance on memory usage of the bloom filter?",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [],
+      "relevancia": 23.99,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2165,
+      "titulo": "add sample of synchronizing bloom filter to wiki",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "package=hash",
+       "type=api-docs",
+       "status=will-not-fix"
+      ],
+      "relevancia": 22.31,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2357,
+      "titulo": "Guava filter writeTo, readFrom for scalable filters",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [],
+      "relevancia": 19.59,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 12,
+      "titulo": "BloomFilter<E>",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "type=enhancement",
+       "package=hash"
+      ],
+      "relevancia": 17.36,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 478,
+      "titulo": "new methods to store/retive a long from byte array",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=will-not-fix"
+      ],
+      "relevancia": 16.21,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1322,
+      "titulo": "ImmutableTable.Builder builds array backed table for large sparse tables due to overflow error",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=defect",
+       "status=fixed",
+       "package=collect"
+      ],
+      "relevancia": 16.1,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5998,
+      "titulo": "Use `long` multiplication `FarmHashFingerprint64`.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [],
+      "relevancia": 14.58,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 9 itens da mesma área (commented, closed)",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 3 itens da mesma área (closed, commented)",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 2 itens da mesma área (commented, closed); em semelhantes: [2165]",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 2 itens da mesma área (closed, commented); em semelhantes: [1067]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "eamonnmcmanus",
+      "motivos": [
+       "participou de 3 itens da mesma área (closed, commented, reviewed, commit)"
+      ]
+     },
+     {
+      "login": "ronshapiro",
+      "motivos": [
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "HashMap",
+      "OutOfMemoryError"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #2098 propõe que o BloomFilter deixe de guardar os bits em um único `long[] data` final, pois isso causa `OutOfMemoryError` quando o número de inserções esperadas é muito grande, e sugere dividir os dados em blocos menores. A issue foi criada em 2015-07-02 e está fechada.\n\n## O que já foi discutido\n- #1067 (fechada, concluída): mudança do número de inserções esperadas de `int` para `long`, relacionada ao mesmo limite de tamanho do filtro.\n- #2520 (fechada, concluída): pedido de orientação sobre o uso de memória do bloom filter, útil para entender o consumo esperado.\n- #2357 (fechada, concluída): pedido de `writeTo`/`readFrom` para filtros escaláveis, tema próximo à persistência de grandes filtros.\n- #12 (fechada, concluída): issue original sobre `BloomFilter<E>`, com o histórico de design do tipo.\n\nO contexto não informa qual foi a decisão específica sobre a proposta de blocos, então não é possível afirmar se ela foi implementada ou recusada.\n\n## Onde investigar no código\n- `BloomFilter`: classe principal que mantém a estrutura do filtro e os métodos de inserção e consulta.\n- `BitArray`: classe que guarda os bits, onde está o `long[] data` mencionado na issue. Comece por aqui para entender a alocação de memória.\n- Procure pelos métodos que criam o array e calculam o tamanho em bits a partir de `expectedInsertions` e da probabilidade de falso positivo.\n\n## Com quem falar\n- **kluever**: participou de 9 itens da mesma área e é mantenedor ativo; bom ponto de partida para dúvidas sobre o histórico.\n- **cpovirk**: participou de 3 itens da área e é um dos mantenedores mais ativos.\n- **kevinb9n**: participou de itens relacionados, incluindo #2165 sobre sincronização do bloom filter.\n- **cgdecker**: participou de #1067 e de outros itens da área, útil para entender a mudança de `int` para `long`.\n- **eamonnmcmanus**: atuou em revisões e commits da área, relevante para avaliar a abordagem técnica.\n\n## Como contribuir no Guava\n- Pelos dados do processo, contribuidores que já tinham PRs aceitos tiveram 188 de 346 aceitos, com decisão em mediana de 1.8 dias. Quem nunca contribuiu teve 16 de 345 aceitos, com decisão em mediana de 3.3 dias.\n- Antes de escrever código, comente na issue para combinar a abordagem com os mantenedores.\n- Um PR pode aparecer como `closed` sem merge: o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR. Não interprete isso automaticamente como rejeição.\n\n## Próximos passos\n1. Leia a issue #2098 completa, incluindo os comentários, para confirmar se houve decisão sobre a proposta de blocos.\n2. Leia as issues #1067 e #2520 para entender as restrições de tamanho e memória já discutidas.\n3. Leia o código de `BitArray` e de `BloomFilter` e localize onde o `long[] data` é alocado.\n4. Se a ideia ainda não tiver sido decidida, comente na issue com a abordagem proposta e peça orientação antes de implementar, mencionando kluever ou cpovirk.\n5. Só depois de alinhar a abordagem, abra um PR pequeno e focado, citando a issue no título ou na descrição.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 824,
+     "tokens_saida": 248,
+     "custo_usd": 0.0,
+     "segundos": 0.0,
+     "cache": true,
+     "original": {
+      "provedor": "anthropic",
+      "modelo": "claude-haiku-5-5",
+      "esforco": "low",
+      "pensar": false,
+      "tokens_entrada": 824,
+      "tokens_saida": 248,
+      "custo_usd": 0.000206,
+      "segundos": 4.3
+     }
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1623,
+     "tokens_saida": 1258,
+     "custo_usd": 0.0,
+     "segundos": 0.0,
+     "cache": true,
+     "original": {
+      "provedor": "anthropic",
+      "modelo": "claude-haiku-5-5",
+      "esforco": "low",
+      "pensar": false,
+      "tokens_entrada": 1623,
+      "tokens_saida": 1258,
+      "custo_usd": 0.000791,
+      "segundos": 5.9
+     }
+    }
+   }
+  },
+  "218": {
+   "interpretacao": {
+    "objetivo": "Adicionar um método fold (redução/agregação) para Iterables na biblioteca Guava, evitando iterações manuais para agregar dados.",
+    "tipo": "nova_api",
+    "termos_busca": [
+     "fold",
+     "reduce",
+     "Iterables",
+     "aggregate",
+     "functional programming",
+     "accumulator",
+     "catamorphism"
+    ],
+    "elementos_codigo": [
+     "Iterables",
+     "Iterables.fold",
+     "Function",
+     "Iterable"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 218,
+     "titulo": "Add a fold method for Iterables",
+     "corpo": "_[Original issue](https://code.google.com/p/guava-libraries/issues/detail?id=218) created by **rwallace1979** on 2009-08-12 at 11:37 PM_\n\n---\n\nI find myself always wanting to iterate over a collection to aggregate the\ndata and wishing Google Collections had a fold operation.\n\nAn implementation can be found on StackOverflow,\n&lt;http://stackoverflow.com/questions/950751/how-to-implement-a-list-fold-in-java/951337#951337>.\n",
+     "estado": "closed",
+     "labels": [
+      "type=addition",
+      "package=collect"
+     ],
+     "criada_em": "2014-10-31T17:06:11.000000000+00:00",
+     "autor": "gissuebot"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "fold",
+     "reduce",
+     "Iterables",
+     "aggregate",
+     "functional programming",
+     "accumulator",
+     "catamorphism",
+     "Iterables.fold",
+     "Function",
+     "Iterable"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 313,
+      "titulo": "Adding helper method in Iterables to see Iterable<Iterable<T>> as Iterable<T>",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=invalid"
+      ],
+      "relevancia": 10.77,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 444,
+      "titulo": "Add new find with Function interface to Iterables and Iterators",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=will-not-fix"
+      ],
+      "relevancia": 9.07,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1183,
+      "titulo": "Performance of Iterables/Iterators.elementsEqual()",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "package=collect",
+       "type=performance"
+      ],
+      "relevancia": 8.32,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 446,
+      "titulo": "Iterables.concat() improvement",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=duplicate"
+      ],
+      "relevancia": 7.77,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2425,
+      "titulo": "Wiki title going too far in CollectionUtilitiesExplained",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [],
+      "relevancia": 7.65,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 730,
+      "titulo": "Provide transformedCopy version of transform for Iterables and Lists",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=will-not-fix"
+      ],
+      "relevancia": 7.55,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 555,
+      "titulo": "EnumMultiset.create(Iterable, Class)",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "type=addition",
+       "package=collect"
+      ],
+      "relevancia": 7.28,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 796,
+      "titulo": "Conversion from Iterator/Enumeration to Iterable",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=addition",
+       "package=collect",
+       "status=working-as-intended"
+      ],
+      "relevancia": 7.04,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 43 itens da mesma área (commented, closed, commit); em semelhantes: [2425]",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 59 itens da mesma área (commented, closed, reviewed)",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 34 itens da mesma área (commented, closed, commit)",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "ronshapiro",
+      "motivos": [
+       "participou de 7 itens da mesma área (reviewed, commented, closed)",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 25 itens da mesma área (commented, closed); em semelhantes: [2425]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "lowasser",
+      "motivos": [
+       "participou de 39 itens da mesma área (commented, closed, commit, reviewed)"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "StackOverflow"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #218 pede a adição de um método `fold` (redução/agregação) para `Iterables`, para evitar iterações manuais ao agregar dados. Foi criada em 2009-08-12 (o campo \"Criada em\" informa 2014-10-31, data de migração para o GitHub) e está no estado closed.\n\n## O que já foi discutido\n- #313 [closed/completed]: helper em `Iterables` para ver `Iterable<Iterable<T>>` como `Iterable<T>`. Desfecho: concluída.\n- #444 [closed/completed]: novo `find` com interface `Function` em `Iterables` e `Iterators`. Desfecho: concluída.\n- #730 [closed/completed]: `transformedCopy` para `Iterables` e `Lists`. Desfecho: concluída.\n- #446 [closed/completed]: melhoria em `Iterables.concat()`. Desfecho: concluída.\n\n## Onde investigar no código\n- `Iterables`: classe central citada na issue, onde um `fold` faria mais sentido.\n- `Function` e `Iterable`: tipos mencionados no contexto que a assinatura do método provavelmente usaria.\n- `Iterables.fold`: nome do método proposto, citado na issue como ponto de partida.\n- Para entender o padrão de métodos de agregação e transformação, comece pelos itens #444 e #730 e veja como foram implementados.\n\nO contexto não traz detalhes sobre o estado atual de `Iterables` no repositório, então confirme no código o que já existe antes de propor algo.\n\n## Com quem falar\n- **cpovirk**: mantenedor ativo, com participação em 43 itens da área e em #2425.\n- **kevinb9n**: mantenedor ativo, com participação em 59 itens da área.\n- **kluever**: mantenedor ativo, com participação em 34 itens da área.\n- **lowasser**: participou de 39 itens da área, com commits e revisões.\n- **cgdecker**: participou de 25 itens da área e também aparece em #2425.\n- **ronshapiro**: participou de 7 itens da área e é mantenedor ativo.\n\n## Como contribuir no Guava\n- Contribuidores que já tiveram PRs aceitos anteriormente têm taxa de aceitação maior (188 de 346) e decisão mediana em 1.8 dias. Quem nunca contribuiu tem 16 de 345 PRs aceitos, com decisão mediana em 3.3 dias.\n- Um PR aparecer como `closed` não significa necessariamente que foi recusado: o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR.\n- Antes de escrever código, comente na issue para combinar a abordagem com os mantenedores.\n\n## Próximos passos\n1. Leia o código atual de `Iterables` e verifique se já existe algum método de redução ou agregação.\n2. Leia as issues #444 e #730 para entender como os mantenedores costumam desenhar novos métodos em `Iterables`.\n3. Comente na issue (ou abra uma nova discussão) propondo a assinatura do `fold` e perguntando se a proposta está alinhada com a direção do projeto.\n4. Ajuste a proposta conforme o feedback de cpovirk, kevinb9n ou kluever, que são os mantenedores mais ativos nessa área.\n5. Só depois de alinhar a abordagem, implemente o método com testes e abra o PR.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 832,
+     "tokens_saida": 155,
+     "custo_usd": 0.000161,
+     "segundos": 4.7,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1593,
+     "tokens_saida": 1183,
+     "custo_usd": 0.000751,
+     "segundos": 5.1,
+     "cache": false
+    }
+   }
+  },
+  "669": {
+   "interpretacao": {
+    "objetivo": "Adicionar a Optional um método transform(Function<X,Y>) que retorne Optional<Y>, permitindo transformações arbitrárias do valor, além de sugestões para tornar Optional iterável e oferecer consultas via Predicate.",
+    "tipo": "nova_api",
+    "termos_busca": [
+     "Optional transform function",
+     "Optional map Function",
+     "Optional Iterable access",
+     "Optional Predicate query",
+     "functional Optional monad"
+    ],
+    "elementos_codigo": [
+     "Optional",
+     "Optional.transform",
+     "Function",
+     "Predicate",
+     "Iterable"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 669,
+     "titulo": "Optional.transform(Function<X,Y>) -> Optional<Y>",
+     "corpo": "_[Original issue](https://code.google.com/p/guava-libraries/issues/detail?id=669) created by **sebastian.jancke** on 2011-07-26 at 07:14 AM_\n\n---\n\nHello,\n\nthe Optional type is a very good start. Nat Pryce has a wonderful implementation and ideas of something similar with a good integration into guava already. Maybe guava can learn from and adapt them. \n\nSome key ideas that we're used to, but missing here with Optional are:\n\n1) access the value only through an Iterable. Optional should implement Iterable and disallow any other access to the value. This ensures, depending code is only executed, if there is known value inside:\n\nfor(V value : optional) {\n&nbsp;&nbsp;value.doSometing();\n}\n\n2) arbitrary transformation: \n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&lt;T> to(Function....)\n\n3) query/transformation to Optional&lt;Boolean>: \n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&lt;Boolean> query(Predicate....)\n\nIdea (1) might be the most controversial idea of those three, however in production it realy protects people from missing a \"isPresent\" test and accessing the value directly.\n",
+     "estado": "closed",
+     "labels": [
+      "type=enhancement",
+      "package=base"
+     ],
+     "criada_em": "2014-10-31T17:19:54.000000000+00:00",
+     "autor": "gissuebot"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "Optional transform function",
+     "Optional map Function",
+     "Optional Iterable access",
+     "Optional Predicate query",
+     "functional Optional monad",
+     "Optional",
+     "Optional.transform",
+     "Function",
+     "Predicate",
+     "Iterable"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 816,
+      "titulo": "Optional transform method",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "package=base",
+       "status=duplicate"
+      ],
+      "relevancia": 47.85,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 975,
+      "titulo": "Add Optional.transform(Function)",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=duplicate"
+      ],
+      "relevancia": 43.71,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 747,
+      "titulo": "Provide Optionals",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=enhancement",
+       "status=will-not-fix"
+      ],
+      "relevancia": 33.98,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5707,
+      "titulo": "Add `@InlineMe` to `Streams.stream(Optional)` and friends.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "cla: yes"
+      ],
+      "relevancia": 33.83,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5549,
+      "titulo": "feature: add Optional ifPresent.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "type=addition",
+       "package=base",
+       "status=duplicate",
+       "cla: no"
+      ],
+      "relevancia": 33.79,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1242,
+      "titulo": "Add enumeration for possible Optional states",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=working-as-intended"
+      ],
+      "relevancia": 33.6,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 819,
+      "titulo": "Provide some default Optional-Values",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=will-not-fix"
+      ],
+      "relevancia": 31.76,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1445,
+      "titulo": "Iterables.contains(Iterable<T> iterable, Predicate<?extends T> predicate)",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=addition",
+       "package=collect",
+       "status=invalid"
+      ],
+      "relevancia": 30.85,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 18 itens da mesma área (commented, closed, commit)",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 13 itens da mesma área (closed, commented, commit)",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "netdpb",
+      "motivos": [
+       "participou de 7 itens da mesma área (closed, commented, reviewed); em semelhantes: [5549]",
+       "mantenedor ativo (64 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 5 itens da mesma área (commented, closed)",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 7 itens da mesma área (closed, commented)",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "lowasser",
+      "motivos": [
+       "participou de 9 itens da mesma área (commented, closed)"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "Optional.transform"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #669 pede que `Optional` ganhe um método `transform(Function<X,Y>)` retornando `Optional<Y>`, além de sugestões para torná-lo iterável e oferecer consultas via `Predicate`. Foi criada em 2014-10-31 (originalmente em 2011-07-26, no Google Code) e está fechada.\n\n## O que já foi discutido\n- #816 [closed/completed]: discussão sobre um método `transform` em `Optional`.\n- #975 [closed/completed]: adição de `Optional.transform(Function)`, que cobre diretamente a proposta principal.\n- #747 [closed/completed]: discussão mais ampla sobre prover Optionals.\n- #1242 [closed/completed]: enumeração dos possíveis estados de `Optional`.\n- PR #5549 [closed]: proposta de adicionar `ifPresent` a `Optional`.\n- PR #5707 [closed]: adição de `@InlineMe` em `Streams.stream(Optional)` e similares.\n\nOs desfechos exatos de cada item não estão detalhados no contexto além do estado indicado.\n\n## Onde investigar no código\n- `Optional` e o método `transform`: ponto de partida para entender a API atual e a implementação de `transform(Function)`.\n- `Function` e `Predicate`: interfaces usadas nas sugestões de transformação e consulta.\n- `Iterable`: relevante para a ideia de tornar `Optional` iterável.\n\nO contexto não traz caminhos de arquivo nem detalhes de implementação além desses nomes.\n\n## Com quem falar\n- **cpovirk**: participou de 18 itens da mesma área e é mantenedor ativo.\n- **kluever**: participou de 13 itens da mesma área e é mantenedor ativo.\n- **netdpb**: participou de 7 itens da área, incluindo o PR #5549 relacionado a `ifPresent`.\n- **kevinb9n**: participou de 7 itens da área e é mantenedor ativo.\n- **cgdecker**: participou de 5 itens da área e é mantenedor ativo.\n- **lowasser**: participou de 9 itens da área.\n\n## Como contribuir no Guava\n- Quem nunca contribuiu tem histórico menor de aceitação: 16 de 345 PRs aceitos, com decisão em mediana de 3,3 dias. Quem já contribuiu tem 188 de 346 aceitos, com mediana de 1,8 dias.\n- Antes de escrever código, comente na issue para alinhar a abordagem com os mantenedores.\n- Um PR pode aparecer como `closed` sem merge: o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR.\n\n## Próximos passos\n1. Leia a issue #669 e as issues #975 e #816 para entender o que já foi decidido sobre `transform`.\n2. Verifique no código atual se `Optional.transform(Function)` já existe, antes de propor algo novo.\n3. Escolha uma das ideias ainda não cobertas pelo contexto (por exemplo, iteração ou consulta via `Predicate`) e confirme se há issue ou PR relacionado.\n4. Comente na issue escolhida com sua proposta de abordagem e aguarde o retorno de um mantenedor, como cpovirk ou kluever.\n5. Só depois de alinhar a abordagem, implemente e abra o PR, lembrando que ele pode ser fechado por sincronização interna sem merge explícito.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1106,
+     "tokens_saida": 198,
+     "custo_usd": 0.00021,
+     "segundos": 2.0,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1815,
+     "tokens_saida": 1202,
+     "custo_usd": 0.000782,
+     "segundos": 5.1,
+     "cache": false
+    }
+   }
+  },
+  "780": {
+   "interpretacao": {
+    "objetivo": "Corrigir a visibilidade do método EventBus.dispatch, que expõe a classe package-private EventHandler e impede que subclasses o sobrescrevam.",
+    "tipo": "bug",
+    "termos_busca": [
+     "EventBus dispatch visibility",
+     "package private class",
+     "method override access",
+     "EventHandler visibility",
+     "Java access modifiers",
+     "event bus subclass override"
+    ],
+    "elementos_codigo": [
+     "EventBus.dispatch",
+     "EventHandler"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 780,
+     "titulo": "EventBus.dispatch exposes package private class EventHandler",
+     "corpo": "_[Original issue](https://code.google.com/p/guava-libraries/issues/detail?id=780) created by **ostybosty** on 2011-11-03 at 01:27 PM_\n\n---\n\nIt's impossible to override EventBus.dispatch(Object, EventHandler) due to the package private visibility of EventHandler.\n",
+     "estado": "closed",
+     "labels": [
+      "type=defect",
+      "package=eventbus"
+     ],
+     "criada_em": "2014-10-31T17:23:54.000000000+00:00",
+     "autor": "gissuebot"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "EventBus dispatch visibility",
+     "package private class",
+     "method override access",
+     "EventHandler visibility",
+     "Java access modifiers",
+     "event bus subclass override",
+     "EventBus.dispatch",
+     "EventHandler"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 981,
+      "titulo": "EventHandler is package private",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=duplicate"
+      ],
+      "relevancia": 35.91,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1136,
+      "titulo": "Make EventHandler a public class",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=enhancement",
+       "package=eventbus",
+       "status=duplicate"
+      ],
+      "relevancia": 29.08,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 701,
+      "titulo": "Unable to access ForwardingMap.StandardKeySet / ForwardingMap.StandardValues outside of c.g.c.collect",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=defect",
+       "status=fixed"
+      ],
+      "relevancia": 19.28,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 6042,
+      "titulo": "Change private access modifiers for constants in MediaType",
+      "estado": "open",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "P3"
+      ],
+      "relevancia": 17.3,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2089,
+      "titulo": "AsyncEventBus fire duplicate event",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [],
+      "relevancia": 15.81,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 755,
+      "titulo": "Something about the new eventbus",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=enhancement",
+       "package=eventbus",
+       "status=invalid"
+      ],
+      "relevancia": 15.65,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5908,
+      "titulo": "Add Access-Control-Allow-Private-Network header to common library.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [],
+      "relevancia": 15.32,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1549,
+      "titulo": "Duplicated EventHandler Registration on the Generic method",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=defect",
+       "status=fixed",
+       "package=eventbus"
+      ],
+      "relevancia": 13.97,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 4 itens da mesma área (commented, closed); em semelhantes: [6042]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "lowasser",
+      "motivos": [
+       "participou de 2 itens da mesma área (commented)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "liach",
+      "motivos": [
+       "participou de 2 itens da mesma área (reviewed, commented)"
+      ]
+     },
+     {
+      "login": "ronshapiro",
+      "motivos": [
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "EventHandler",
+      "EventBus"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #780 relata que o método `EventBus.dispatch(Object, EventHandler)` não pode ser sobrescrito por subclasses porque o tipo `EventHandler` tem visibilidade package-private. Ela foi criada em 2014-10-31 e está fechada.\n\n## O que já foi discutido\n- #981 (fechada, completed): trata do mesmo problema, o `EventHandler` ser package-private.\n- #1136 (fechada, completed): propõe e resolve tornar `EventHandler` uma classe pública, que é o desfecho direto para este caso.\n- #2089 (fechada, completed): envolve o `AsyncEventBus`, relacionado ao mesmo módulo de eventos.\n- #755 (fechada, completed): discussão geral sobre o novo eventbus.\n\n## Onde investigar no código\n- `EventBus`: ponto de partida, onde está o método `dispatch`.\n- `EventHandler`: a classe cuja visibilidade é o problema central. Compare a declaração atual com a versão discutida em #981 e #1136.\n- `EventBus.dispatch`: confirme a assinatura e veja como ela é usada por subclasses e pelo `AsyncEventBus`.\n\nComo a issue está fechada, o contexto não confirma em qual versão a mudança foi aplicada. Verifique o código atual antes de começar.\n\n## Com quem falar\n- **cgdecker**: participou de vários itens da mesma área, incluindo PRs, e é mantenedor ativo.\n- **cpovirk**: mantenedor muito ativo, com muitas issues e PRs fechados.\n- **lowasser**: participou de discussões relacionadas ao mesmo tema.\n- **liach**: revisou e comentou itens semelhantes, o que o torna um bom contato para revisão.\n- **kluever** e **ronshapiro**: mantenedores ativos que podem orientar sobre o processo.\n\n## Como contribuir no Guava\n- Contribuidores que já tiveram PRs aceitos têm taxa de aceitação bem maior (188 de 346) e decisão mediana em 1,8 dias. Quem nunca contribuiu tem 16 de 345 aceitos e decisão mediana em 3,3 dias. Esses números indicam que o processo costuma ser mais demorado para novatos.\n- Antes de escrever código, comente na issue para alinhar a abordagem com os mantenedores.\n- Um PR pode aparecer como fechado sem merge. Isso acontece porque o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR. Não interprete o fechamento como rejeição automaticamente.\n\n## Próximos passos\n1. Leia #981 e #1136 para entender como a visibilidade de `EventHandler` foi tratada antes.\n2. Verifique no código atual se `EventHandler` já é público. Se for, a issue pode já estar resolvida.\n3. Se ainda houver um problema, comente na issue para propor a abordagem e pedir confirmação a cgdecker ou lowasser.\n4. Só depois de alinhar a abordagem, implemente a mudança mínima, com teste que cubra a sobrescrita de `dispatch`.\n5. Abra o PR referenciando #780 e peça revisão a liach ou a um dos mantenedores ativos.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 780,
+     "tokens_saida": 164,
+     "custo_usd": 0.00016,
+     "segundos": 1.5,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1388,
+     "tokens_saida": 1138,
+     "custo_usd": 0.000708,
+     "segundos": 5.5,
+     "cache": false
+    }
+   }
+  },
+  "2209": {
+   "interpretacao": {
+    "objetivo": "Permitir passar um Supplier de StatsCounter customizado ao CacheBuilder, por meio de uma sobrecarga de recordStats(), para facilitar a coleta de estatísticas de cache com bibliotecas como o Dropwizard Metrics.",
+    "tipo": "melhoria",
+    "termos_busca": [
+     "cache statistics",
+     "StatsCounter supplier",
+     "CacheBuilder recordStats",
+     "custom cache metrics",
+     "Dropwizard metrics integration",
+     "cache stats collection"
+    ],
+    "elementos_codigo": [
+     "CacheBuilder",
+     "CacheBuilder.recordStats",
+     "StatsCounter",
+     "Supplier"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 2209,
+     "titulo": "It should be possible to provide a custom StatsCounter Supplier in CacheBuilder",
+     "corpo": "To simplify the process of collecting cache stats using e.g. _io.dropwizard.metrics_, `CacheBuilder.recordStats()` should have an overloaded version that accepts a StatsCounter Supplier.\n\nSee PR: https://github.com/google/guava/pull/2208\n",
+     "estado": "closed",
+     "labels": [
+      "type=addition",
+      "package=cache"
+     ],
+     "criada_em": "2015-10-27T11:15:02.000000000+00:00",
+     "autor": "jebl01"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "cache statistics",
+     "StatsCounter supplier",
+     "CacheBuilder recordStats",
+     "custom cache metrics",
+     "Dropwizard metrics integration",
+     "cache stats collection",
+     "CacheBuilder",
+     "CacheBuilder.recordStats",
+     "StatsCounter",
+     "Supplier"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "pr",
+      "numero": 2208,
+      "titulo": "Made it possible to provide a custom StatsCounterSupplier in CacheBuilder",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "cla: yes"
+      ],
+      "relevancia": 29.46,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1685,
+      "titulo": "Allow CacheBuilder to supply custom StatsCounter",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=addition",
+       "package=cache",
+       "status=duplicate"
+      ],
+      "relevancia": 29.08,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5679,
+      "titulo": "Add `CacheBuilder.recordStats(boolean)`",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "cla: no"
+      ],
+      "relevancia": 21.92,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 841,
+      "titulo": "CacheBuilder class JavaDoc ambiguity concerning reclaim of cache entries",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "package=cache",
+       "type=documentation"
+      ],
+      "relevancia": 20.9,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2114,
+      "titulo": "Feature: Be able to check if Cache#stats is enabled",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=addition",
+       "package=cache",
+       "status=will-not-fix"
+      ],
+      "relevancia": 18.9,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1571,
+      "titulo": "Expose key/value equivalence relation in CacheBuilder",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=duplicate"
+      ],
+      "relevancia": 16.66,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 887,
+      "titulo": "GWT compilation error with CacheBuilder",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=defect",
+       "status=fixed",
+       "platform=gwt"
+      ],
+      "relevancia": 16.38,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2225,
+      "titulo": "Cache should respect expireAfterWrite",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=enhancement",
+       "package=cache",
+       "status=working-as-intended"
+      ],
+      "relevancia": 15.66,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 5 itens da mesma área (closed, commented); em semelhantes: [2208]",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 7 itens da mesma área (closed, commented, reviewed)",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 7 itens da mesma área (commented, closed); em semelhantes: [2225, 2114]",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 5 itens da mesma área (closed, commented); em semelhantes: [1685]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "ben-manes",
+      "motivos": [
+       "participou de 12 itens da mesma área (commented, commit); em semelhantes: [2225, 1685]"
+      ]
+     },
+     {
+      "login": "lowasser",
+      "motivos": [
+       "participou de 9 itens da mesma área (commented, closed, reviewed); em semelhantes: [2225, 2114]"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "StatsCounter",
+      "CacheBuilder"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #2209 pede uma sobrecarga de `CacheBuilder.recordStats()` que aceite um `Supplier` de `StatsCounter`, para facilitar a integração com bibliotecas como o Dropwizard Metrics. Foi criada em 2015-10-27 e está fechada. Há um PR associado, o #2208.\n\n## O que já foi discutido\n- #2208 [closed]: PR que implementa a possibilidade de fornecer um `StatsCounterSupplier` customizado no `CacheBuilder`. É a implementação diretamente ligada a esta issue.\n- #1685 [closed/completed]: pedido semelhante, para permitir ao `CacheBuilder` fornecer um `StatsCounter` customizado. Foi concluído.\n- #5679 [closed]: adiciona `CacheBuilder.recordStats(boolean)`. Trata de outra forma de configurar a coleta de estatísticas.\n- #2114 [closed/completed]: pedido para verificar se `Cache#stats` está habilitado. Foi concluído.\n- #1571 [closed/completed]: expõe a relação de equivalência de chave/valor no `CacheBuilder`. Foi concluído.\n- #841 [closed/completed]: ambiguidade na Javadoc do `CacheBuilder` sobre a recuperação de entradas do cache. Foi concluído.\n\n## Onde investigar no código\n- `CacheBuilder`: classe que recebe a configuração do cache. O método `recordStats()` é o ponto de entrada da mudança.\n- `StatsCounter`: interface usada para contar hits, misses e carregamentos. É o tipo que o `Supplier` deve produzir.\n- `Supplier`: a sobrecarga de `recordStats()` deve receber um `Supplier<StatsCounter>`. Comece pelo código de `CacheBuilder` que hoje cria o `StatsCounter` padrão.\n\n## Com quem falar\n- cpovirk: mantenedor ativo, participou de 5 itens da área de cache e está ligado ao #2208.\n- kluever: mantenedor ativo, com muita participação em revisões e fechamento de itens da área.\n- kevinb9n: mantenedor ativo, participou de 7 itens da área, incluindo #2225 e #2114.\n- cgdecker: mantenedor ativo, participou de 5 itens da área e está ligado ao #1685.\n- ben-manes: participou de 12 itens da área, incluindo commits, e está ligado a #2225 e #1685. É um bom contato para dúvidas sobre o funcionamento interno do cache.\n- lowasser: participou de 9 itens da área, incluindo #2225 e #2114.\n\n## Como contribuir no Guava\n- Quem já contribuiu antes tem mais chance de ter o PR aceito: 188 de 346 PRs aceitos, com decisão em mediana de 1.8 dias.\n- Quem nunca contribuiu tem uma taxa menor: 16 de 345 PRs aceitos, com decisão em mediana de 3.3 dias.\n- Antes de escrever código, comente na issue para alinhar a abordagem com os mantenedores.\n- Um PR pode aparecer como fechado sem merge. Isso acontece porque o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR. Não interprete o estado \"closed\" como rejeição automática.\n\n## Próximos passos\n1. Leia a issue #2209 e o PR #2208 para entender a abordagem já proposta e o que foi decidido.\n2. Leia o código de `CacheBuilder`, focando em `recordStats()` e na criação do `StatsCounter` padrão.\n3. Confira a discussão de #1685, que trata de um tema próximo, para evitar repetir argumentos já resolvidos.\n4. Comente na issue ou no PR para confirmar com um mantenedor (por exemplo, cpovirk ou cgdecker) se a abordagem ainda faz sentido, antes de implementar.\n5. Só depois de alinhar a abordagem, implemente a sobrecarga e os testes correspondentes.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 775,
+     "tokens_saida": 228,
+     "custo_usd": 0.000191,
+     "segundos": 1.5,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1602,
+     "tokens_saida": 1418,
+     "custo_usd": 0.000869,
+     "segundos": 6.0,
+     "cache": false
+    }
+   }
+  },
+  "1214": {
+   "interpretacao": {
+    "objetivo": "Fazer a classe reflect.ClassPath (Guava 14.0) também fornecer acesso a recursos gerais do classpath via ResourceInfo, e não apenas a classes via ClassInfo.",
+    "tipo": "melhoria",
+    "termos_busca": [
+     "classpath scanning",
+     "ResourceInfo",
+     "ClassInfo",
+     "classpath resources",
+     "reflection",
+     "class path resource discovery"
+    ],
+    "elementos_codigo": [
+     "ClassPath",
+     "ClassInfo",
+     "ResourceInfo"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 1214,
+     "titulo": "reflect.Classpath should provide ResourceInfo in addition to ClassInfo",
+     "corpo": "_[Original issue](https://code.google.com/p/guava-libraries/issues/detail?id=1214) created by **kasperni** on 2012-11-29 at 09:33 AM_\n\n---\n\nThe Classpath class being added to 14.0 should provide methods for access not only to classes but also general resources on the classpath.\n",
+     "estado": "closed",
+     "labels": [
+      "type=addition",
+      "package=reflect"
+     ],
+     "criada_em": "2014-10-31T17:39:05.000000000+00:00",
+     "autor": "gissuebot"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "classpath scanning",
+     "ResourceInfo",
+     "ClassInfo",
+     "classpath resources",
+     "reflection",
+     "class path resource discovery",
+     "ClassPath"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 1267,
+      "titulo": "ClassPath doesn't support duplicated resource names",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "package=reflect",
+       "status=will-not-fix"
+      ],
+      "relevancia": 30.09,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2228,
+      "titulo": "Add ClassPath.ResourceInfo.asByteSource()",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "type=addition",
+       "package=reflect"
+      ],
+      "relevancia": 22.06,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1215,
+      "titulo": "Classpath scanning fails every time on OSX",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=defect",
+       "status=fixed",
+       "package=reflect"
+      ],
+      "relevancia": 20.64,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1265,
+      "titulo": "Support META-INF entries in new ClassPath fucntionality",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "package=reflect"
+      ],
+      "relevancia": 17.62,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5504,
+      "titulo": "Document issues with `ClassPath`, and recommend ClassGraph.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [
+       "cla: yes"
+      ],
+      "relevancia": 16.74,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5251,
+      "titulo": "MOE Sync 2020-09-28",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "cla: yes",
+       "internal-sync"
+      ],
+      "relevancia": 14.96,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2390,
+      "titulo": "ClassPath.from dies on java.security.AccessControlException instead of skipping",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": true,
+      "labels": [],
+      "relevancia": 13.01,
+      "commits_que_resolveram": [
+       {
+        "mensagem": "If File.exists throws an exception when constructing a ClassPath instance, ignore that entry in the classpath rather than propagating the exception.",
+        "sha": "ff41ff1ee2"
+       }
+      ]
+     },
+     {
+      "tipo": "pr",
+      "numero": 5252,
+      "titulo": "MOE Sync 2020-09-29",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [
+       "cla: yes",
+       "internal-sync"
+      ],
+      "relevancia": 10.0,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 4 itens da mesma área (commented, closed, merged); em semelhantes: [2228, 5251, 5252]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 2 itens da mesma área (closed, commented); em semelhantes: [2390]",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 2 itens da mesma área (commented, closed); em semelhantes: [2228]",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "fluentfuture",
+      "motivos": [
+       "participou de 3 itens da mesma área (commented)"
+      ]
+     },
+     {
+      "login": "ronshapiro",
+      "motivos": [
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "hakanai",
+      "motivos": [
+       "participou de 1 item da mesma área (commented); em semelhantes: [2390]"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "ResourceInfo",
+      "ClassInfo"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #1214 pede que a classe `reflect.ClassPath` (Guava 14.0) forneça acesso não só a classes via `ClassInfo`, mas também a recursos gerais do classpath via `ResourceInfo`. Foi criada em 2014-10-31 e está fechada.\n\n## O que já foi discutido\n- #1267 (fechada, concluída): `ClassPath` não suporta nomes de recursos duplicados.\n- #2228 (fechada, concluída): adicionou `ClassPath.ResourceInfo.asByteSource()`.\n- #1215 (fechada, concluída): a varredura do classpath falhava sempre no OSX.\n- #1265 (fechada, concluída): suporte a entradas de `META-INF` na nova funcionalidade do `ClassPath`.\n- PR #5504 (fechado, aceito): documenta problemas com `ClassPath` e recomenda o ClassGraph.\n\n## Onde investigar no código\n- `ClassPath`: ponto de entrada da varredura do classpath.\n- `ClassPath.ResourceInfo`: representa os recursos gerais; veja como `asByteSource()` foi adicionado (#2228).\n- `ClassPath.ClassInfo`: comparе com `ResourceInfo` para entender a estrutura já existente.\n- Comece pelos itens #1267 e #2228, que mostram como os recursos são tratados hoje.\n\n## Com quem falar\n- **cgdecker**: participou de vários itens da mesma área (incluindo #2228) e é mantenedor ativo.\n- **cpovirk**: participou de itens da área e é mantenedor ativo com muitas issues/PRs fechados.\n- **kluever**: comentou e fechou itens da área, incluindo #2228.\n- **fluentfuture**: comentou itens da mesma área.\n- **ronshapiro** e **hakanai**: contribuíram com itens relacionados; hakanai comentou o #2390.\n\n## Como contribuir no Guava\n- Contribuições de quem nunca contribuiu: 16 de 345 PRs aceitos, com decisão em mediana de 3.3 dias.\n- Contribuições de quem já contribuiu antes: 188 de 346 PRs aceitos, com decisão em mediana de 1.8 dias.\n- Um PR aceito pode aparecer como \"closed\" sem merge: o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR.\n- Antes de escrever código, comente na issue para combinar a abordagem com os mantenedores.\n\n## Próximos passos\n1. Verifique se a funcionalidade já foi implementada, pois a issue está fechada: leia #2228 e #1267 para confirmar o estado atual.\n2. Leia o código de `ClassPath`, `ResourceInfo` e `ClassInfo` para entender a estrutura.\n3. Se identificar uma lacuna, abra uma nova issue ou comente em uma issue existente para propor a abordagem.\n4. Aguarde o alinhamento com os mantenedores (cgdecker, cpovirk ou kluever) antes de escrever código.\n5. Só então implemente, lembrando que o PR pode ser fechado após importação interna sem merge direto.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 783,
+     "tokens_saida": 181,
+     "custo_usd": 0.000169,
+     "segundos": 1.7,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1505,
+     "tokens_saida": 1110,
+     "custo_usd": 0.000705,
+     "segundos": 4.6,
+     "cache": false
+    }
+   }
+  },
+  "1905": {
+   "interpretacao": {
+    "objetivo": "Propor um hook em AbstractFuture (por exemplo onCancel) para executar lógica em cancelamentos sem interrupção, evitando que subclasses precisem sobrescrever cancel(), discutindo a relação e a ordem com o interruptTask() existente.",
+    "tipo": "melhoria",
+    "termos_busca": [
+     "AbstractFuture cancel hook",
+     "non-interrupting cancellation",
+     "interruptTask override",
+     "future cancellation callback",
+     "onCancel AbstractFuture",
+     "cancel propagation futures"
+    ],
+    "elementos_codigo": [
+     "AbstractFuture",
+     "AbstractFuture.cancel",
+     "AbstractFuture.interruptTask",
+     "Future.cancel"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 1905,
+     "titulo": "AbstractFuture.done() hook",
+     "corpo": "We have `interruptTask()` for the interrupt case, but we seem to have a number of `AbstractFuture` subclasses where we need to do work on a non-interrupting cancellation (usually propagating that cancellation to a related `Future` or clearing some resources that would have been used during execution). Currently we override `cancel` to call `super.cancel`, but I hate to encourage overriding of `Future` methods, which are too easy to get wrong, and the necessary boilerplate is a minor annoyance.\n\nThe main difficulty now is that `interruptTask()` already exists. That leaves us with some unappealing options:\n- Add `onCancel(boolean)` to be called on `cancel(anything)` (but before or after `interruptTask()`?)\n- Add `cancelSuccessfulButInterruptionNotRequested()` to be called only on `cancel(false)`.\n- Add `onCancel(boolean)` with a default behavior of calling `interruptTask` if interruption was requested.\n\n(One of the `onCancel` approaches is probably what the most users want (certainly users inside Guava itself), but it either raises questions about the order of operations (what if `onCancel` nulls out something that `interruptTask` needs? Is that plausible? Can reversing the order save us?) or makes `interruptTask` meaningless if someone overrides `onCancel()`.)\n",
+     "estado": "closed",
+     "labels": [
+      "type=addition",
+      "package=concurrent"
+     ],
+     "criada_em": "2014-12-05T22:42:46.000000000+00:00",
+     "autor": "cpovirk"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "AbstractFuture cancel hook",
+     "non-interrupting cancellation",
+     "interruptTask override",
+     "future cancellation callback",
+     "onCancel AbstractFuture",
+     "cancel propagation futures",
+     "AbstractFuture",
+     "AbstractFuture.cancel",
+     "AbstractFuture.interruptTask",
+     "Future.cancel"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 1779,
+      "titulo": "Make AbstractFuture a bit extension friendly",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=enhancement",
+       "package=concurrent",
+       "status=duplicate"
+      ],
+      "relevancia": 32.22,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1628,
+      "titulo": "Unnecessary Creation Of CancellationException In AbstractFuture",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "type=addition",
+       "package=concurrent"
+      ],
+      "relevancia": 19.59,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 6096,
+      "titulo": "Annotate GWT emul `AbstractFuture` with `@CanIgnoreReturnValue`.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [],
+      "relevancia": 19.25,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1958,
+      "titulo": "Do we need an onCancelled method for setFuture(cancelledFuture) to invoke?",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "package=concurrent"
+      ],
+      "relevancia": 18.91,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 6224,
+      "titulo": "Move `interruptTask()` call to immediately before `afterDone()` call.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [],
+      "relevancia": 17.16,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3254,
+      "titulo": "Moe Sync",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [
+       "cla: yes",
+       "internal-sync"
+      ],
+      "relevancia": 14.87,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3370,
+      "titulo": "RFC: Optimize AbstractFuture.setFuture",
+      "estado": "open",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "package=concurrent",
+       "status=triaged",
+       "type=performance",
+       "cla: yes",
+       "P3"
+      ],
+      "relevancia": 14.19,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3256,
+      "titulo": "Moe Sync",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [
+       "cla: yes",
+       "internal-sync"
+      ],
+      "relevancia": 13.63,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "ronshapiro",
+      "motivos": [
+       "participou de 2 itens da mesma área (merged, closed); em semelhantes: [3254, 3256]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "netdpb",
+      "motivos": [
+       "participou de 6 itens da mesma área (commented, closed)",
+       "mantenedor ativo (64 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 2 itens da mesma área (closed, commented)",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "nick-someone",
+      "motivos": [
+       "participou de 2 itens da mesma área (closed, commented)",
+       "mantenedor ativo (57 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "lukesandberg",
+      "motivos": [
+       "participou de 7 itens da mesma área (commented, closed); em semelhantes: [1628]"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "AbstractFuture"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #1905 propõe um hook em `AbstractFuture` (como `onCancel`) para executar lógica em cancelamentos sem interrupção, evitando que subclasses precisem sobrescrever `cancel()`. Foi criada em 2014-12-05 e está fechada.\n\n## O que já foi discutido\n- #1779 [closed/completed]: Make AbstractFuture a bit extension friendly. Tema próximo, pois trata de tornar `AbstractFuture` mais extensível.\n- #1958 [closed/completed]: Do we need an onCancelled method for setFuture(cancelledFuture) to invoke? Discute a necessidade de um método de callback de cancelamento.\n- #6224 [closed]: Move `interruptTask()` call to immediately before `afterDone()` call. Relaciona-se diretamente à ordem de chamada de `interruptTask()`, que é o ponto central levantado na issue.\n- #1628 [closed/completed]: Unnecessary Creation Of CancellationException In AbstractFuture. Tangencial, sobre o comportamento de cancelamento em `AbstractFuture`.\n\n## Onde investigar no código\n- `AbstractFuture.cancel`: ponto onde o cancelamento é tratado e onde um hook como `onCancel` seria acionado.\n- `AbstractFuture.interruptTask`: método existente que executa lógica no caso de interrupção; a ordem relativa a um novo hook é a principal questão de design.\n- `Future.cancel`: interface que as subclasses sobrescrevem hoje, motivo da proposta.\n\nComece lendo `cancel` e `interruptTask` juntos, para entender o fluxo atual antes de qualquer alteração.\n\n## Com quem falar\n- **ronshapiro**: participou de itens da mesma área (incluindo #3254 e #3256) e é mantenedor ativo.\n- **netdpb**: participou de 6 itens da mesma área e é mantenedor ativo.\n- **kevinb9n**: participou de itens da mesma área e é mantenedor ativo.\n- **nick-someone**: participou de itens da mesma área e é mantenedor ativo.\n- **lukesandberg**: participou de 7 itens da mesma área e comentou em #1628, relacionado ao cancelamento.\n\n## Como contribuir no Guava\n- Antes de escrever código, comente na issue para combinar a abordagem com os mantenedores.\n- Quem nunca contribuiu tem 16 de 345 PRs aceitos, com decisão em mediana de 3.3 dias; já quem contribuiu antes tem 188 de 346, com decisão em 1.8 dias.\n- Um PR aceito pode aparecer como 'closed' sem merge: o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR.\n\n## Próximos passos\n1. Leia a issue #1905 completa, incluindo as três opções de design listadas, e os comentários já existentes.\n2. Estude `AbstractFuture.cancel` e `AbstractFuture.interruptTask` no código atual.\n3. Leia #1779 e #6224 para entender decisões anteriores sobre extensibilidade e ordem de chamadas.\n4. Comente na issue apresentando sua leitura da questão de ordem (`onCancel` antes ou depois de `interruptTask()`) e pergunte aos mantenedores qual abordagem preferem.\n5. Só depois de alinhar a abordagem, abra um PR, sabendo que ele pode aparecer como 'closed' sem merge por causa da sincronização interna.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1106,
+     "tokens_saida": 243,
+     "custo_usd": 0.000232,
+     "segundos": 1.6,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1859,
+     "tokens_saida": 1231,
+     "custo_usd": 0.000801,
+     "segundos": 5.1,
+     "cache": false
+    }
+   }
+  },
+  "725": {
+   "interpretacao": {
+    "objetivo": "Propor a adição de métodos na classe Doubles (ex.: equals, compareTo, maior que) que aceitem uma tolerância, para evitar resultados contraintuitivos causados por erros de arredondamento em ponto flutuante.",
+    "tipo": "melhoria",
+    "termos_busca": [
+     "floating point tolerance comparison",
+     "double equality epsilon",
+     "Doubles compareTo tolerance",
+     "approximate double comparison",
+     "floating point rounding error",
+     "fuzzy double comparison"
+    ],
+    "elementos_codigo": [
+     "Doubles",
+     "Doubles.compare",
+     "Doubles.compareTo"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 725,
+     "titulo": "Doubles methods with tolerance?",
+     "corpo": "_[Original issue](https://code.google.com/p/guava-libraries/issues/detail?id=725) created by **n.j.white** on 2011-09-28 at 11:38 PM_\n\n---\n\nCould you add methods to Doubles for equals, compareTo, greater than, &c. that use a tolerance to prevent counterintuitive results in the face of double corruption?\n",
+     "estado": "closed",
+     "labels": [
+      "type=enhancement",
+      "package=primitives"
+     ],
+     "criada_em": "2014-10-31T17:21:59.000000000+00:00",
+     "autor": "gissuebot"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "floating point tolerance comparison",
+     "double equality epsilon",
+     "Doubles compareTo tolerance",
+     "approximate double comparison",
+     "floating point rounding error",
+     "fuzzy double comparison",
+     "Doubles",
+     "Doubles.compare",
+     "Doubles.compareTo"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 864,
+      "titulo": "Doubles/Float: methods with error margin",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=duplicate"
+      ],
+      "relevancia": 33.68,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3902,
+      "titulo": "More rounding methods: {long, BigInteger, BigDecimal} -> double",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "type=addition",
+       "package=math",
+       "cla: yes",
+       "P3"
+      ],
+      "relevancia": 23.56,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 822,
+      "titulo": "Doubles.compare",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=working-as-intended"
+      ],
+      "relevancia": 20.7,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2346,
+      "titulo": "Add comparison operators to Ordering",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=duplicate"
+      ],
+      "relevancia": 18.53,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5887,
+      "titulo": "Link to a Guava-Caffeine comparison with much more information.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [],
+      "relevancia": 18.45,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1827,
+      "titulo": "Multimaps.newListMultiMap(map, factory) does not work when factory supplies Doubles.asList(double[])",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=working-as-intended"
+      ],
+      "relevancia": 17.08,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3901,
+      "titulo": "More rounding methods: {long, BigInteger, BigDecimal} ->double ",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "cla: no"
+      ],
+      "relevancia": 14.44,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 2509,
+      "titulo": "DoubleMath incorrectly rounds 0.99999999999999994 to 2 with rounding mode UP or CEILING",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=defect",
+       "status=fixed",
+       "package=math"
+      ],
+      "relevancia": 14.08,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 5 itens da mesma área (commented, closed); em semelhantes: [2346]",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 4 itens da mesma área (closed, commented)",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 2 itens da mesma área (commented)",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 2 itens da mesma área (closed, commented)",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "netdpb",
+      "motivos": [
+       "participou de 2 itens da mesma área (closed, commented)",
+       "mantenedor ativo (64 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "lowasser",
+      "motivos": [
+       "participou de 7 itens da mesma área (closed, commented); em semelhantes: [2509, 3902]"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #725 propõe adicionar métodos à classe `Doubles` (como equals, compareTo e comparações \"maior que\") que aceitam uma tolerância, para evitar resultados contraintuitivos causados por erros de arredondamento em ponto flutuante. Foi criada em 2014-10-31 e está fechada.\n\n## O que já foi discutido\n- #864 (fechada, concluída): \"Doubles/Float: methods with error margin\", o tema mais próximo da proposta.\n- #822 (fechada, concluída): \"Doubles.compare\", relacionada à comparação de valores double.\n- #2346 (fechada, concluída): \"Add comparison operators to Ordering\", sobre operadores de comparação.\n- #3902 (PR fechado): \"More rounding methods: {long, BigInteger, BigDecimal} -> double\", ligado a conversões numéricas.\n\nO contexto não informa o motivo exato do fechamento de #725 nem se a funcionalidade foi implementada.\n\n## Onde investigar no código\n- `Doubles`: a classe central da proposta; comece pelos métodos de comparação e igualdade.\n- `Doubles.compare` e `Doubles.compareTo`: citados no contexto como pontos de partida para entender a comparação atual.\n- Compare esses métodos com #864 para ver se a discussão sobre margem de erro já produziu alguma solução.\n\n## Com quem falar\n- **cpovirk**: participou de 5 itens da mesma área e é mantenedor ativo; esteve em #2346.\n- **lowasser**: participou de 7 itens da mesma área e apareceu em #2509 e #3902.\n- **kluever**: participou de 4 itens da mesma área e é mantenedor ativo.\n- **kevinb9n**: participou de 2 itens da mesma área e é mantenedor ativo.\n- **cgdecker** e **netdpb**: participaram de 2 itens da mesma área cada um e são mantenedores ativos.\n\n## Como contribuir no Guava\n- Contribuidores novos têm menor taxa de aceitação: 16 de 345 PRs aceitos, com decisão em mediana de 3,3 dias. Quem já contribuiu tem 188 de 346 aceitos, com decisão em 1,8 dias.\n- Um PR pode aparecer como \"closed\" sem merge. O Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR, então não interprete o fechamento como rejeição automática.\n- Antes de escrever código, comente na issue para alinhar a abordagem com os mantenedores.\n\n## Próximos passos\n1. Leia a issue #725 e a discussão em #864 para entender o que já foi considerado.\n2. Verifique se a funcionalidade já existe ou foi descartada, lendo o estado atual da classe `Doubles` no repositório.\n3. Estude `Doubles.compare` e `Doubles.compareTo` para entender a comparação atual.\n4. Comente na issue (ou em uma nova, se a funcionalidade não existir) propondo uma abordagem e perguntando aos mantenedores, como cpovirk ou lowasser, se ela faz sentido.\n5. Só depois de alinhar a proposta, implemente e abra um PR referenciando a issue.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 786,
+     "tokens_saida": 212,
+     "custo_usd": 0.000185,
+     "segundos": 1.5,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1534,
+     "tokens_saida": 1116,
+     "custo_usd": 0.000711,
+     "segundos": 5.0,
+     "cache": false
+    }
+   }
+  },
+  "1184": {
+   "interpretacao": {
+    "objetivo": "Propor uma classe Closer para facilitar o fechamento correto de múltiplos recursos Closeable em JDK6, suprimindo exceções de fechamento quando ocorre uma exceção no bloco principal.",
+    "tipo": "nova_api",
+    "termos_busca": [
+     "Closeable resource management",
+     "suppressed exceptions Java",
+     "try-with-resources JDK6",
+     "Throwable addSuppressed",
+     "closing multiple resources",
+     "Closeables close quietly"
+    ],
+    "elementos_codigo": [
+     "Closer",
+     "Closeables.closeQuietly",
+     "Closeables.close",
+     "Throwable.addSuppressed",
+     "Closeable"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 1184,
+     "titulo": "Closer",
+     "corpo": "_[Original issue](https://code.google.com/p/guava-libraries/issues/detail?id=1184) created by **cgdecker@google.com** on 2012-11-01 at 08:43 PM_\n\n---\n\nWe recently deprecated Closeables.closeQuietly (see issue 1118 for discussion on the reasons for that). Closeables.close(Closeable, boolean) makes it a bit easier to close Closeables correctly, but it's still too hard, especially when dealing with multiple Closeables. While people on JDK7 should be using try-with-resources to handle opening and closing resources, Guava is a JDK6 library and we'd like to provide something to make this easier for users who are stuck on JDK6.\n\nWe're experimenting with a class called Closer that's intended to help with this. Note that the most important thing this class does (that's hard to do without it) is ensuring that when an exception is thrown from the main block of code using the resources, any exceptions that are thrown after that when attempting to close those resources is _suppressed_: it's not thrown, but the exception that was thrown is reported in some way. JDK7 provides a mechanism to do this on Throwable itself, while pre-JDK7 we generally have to just log the exception.\n\nHere are the alternatives:\n# \n1. Closer that can use Throwable.addSuppressed() to suppress an exception when running under JDK7 or log the exception when not, imperative version:\n\n&nbsp;&nbsp;Closer closer = Closer.create();\n&nbsp;&nbsp;try {\n&nbsp;&nbsp;&nbsp;&nbsp;InputStream in = closer.closeLater(openInputStream());\n&nbsp;&nbsp;&nbsp;&nbsp;OutputStream out = closer.closeLater(openOutputStream());\n&nbsp;&nbsp;&nbsp;&nbsp;return copy(in, out);\n&nbsp;&nbsp;} catch (Throwable e) {\n&nbsp;&nbsp;&nbsp;&nbsp;throw closer.rethrow(e, IOException.class);\n&nbsp;&nbsp;} finally {\n&nbsp;&nbsp;&nbsp;&nbsp;closer.close();\n&nbsp;&nbsp;}\n\nAdvantages:\n- can use Throwable.addSuppressed() when running under JDK7... this is mainly useful for internal code in a library that may be used under either JDK6 or JDK7, such as Guava\n\nDisadvantages:\n- having to catch and rethrow any Throwable makes this approach bulky and easier to misuse\n- exceptions not transparent... requires checked exception types that may be thrown from the run() method to be declared in the call to rethrow()\n- the one advantage probably isn't actually useful to most users, who should only be using this if using JDK6\n# \n1. Same as above, callback version:\n\n&nbsp;&nbsp;Closer.runAndClose(new Closer&lt;Long>() {\n&nbsp;&nbsp;&nbsp;&nbsp;@﻿Override protected Long run() throws Exception {\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InputStream in = closeLater(openInputStream());\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OutputStream out = closeLater(openOutputStream());\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return copy(in, out);\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;});\n\nAdvantages:\n- hardest to use wrong\n- least boilerplate\n- same as above with regard to Throwable.addSuppressed()\n\nDisadvantages:\n- may need final variables\n- generics\n- anonymous inner class ugl",
+     "estado": "closed",
+     "labels": [
+      "type=addition",
+      "package=io"
+     ],
+     "criada_em": "2014-10-31T17:38:02.000000000+00:00",
+     "autor": "gissuebot"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "Closeable resource management",
+     "suppressed exceptions Java",
+     "try-with-resources JDK6",
+     "Throwable addSuppressed",
+     "closing multiple resources",
+     "Closeables close quietly",
+     "Closer",
+     "Closeables.closeQuietly",
+     "Closeables.close",
+     "Throwable.addSuppressed",
+     "Closeable"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "issue",
+      "numero": 2465,
+      "titulo": "Add methods to close several objects safely",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [],
+      "relevancia": 26.52,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 513,
+      "titulo": "Closeables.closeQuietly() with varargs",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=will-not-fix"
+      ],
+      "relevancia": 23.98,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1267,
+      "titulo": "ClassPath doesn't support duplicated resource names",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "package=reflect",
+       "status=will-not-fix"
+      ],
+      "relevancia": 16.87,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1330,
+      "titulo": "Call flush() before calling close() on streams in ByteSink and CharSink",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=fixed",
+       "type=enhancement",
+       "package=io"
+      ],
+      "relevancia": 15.46,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1308,
+      "titulo": "Closer.close() should not declare IOException",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "status=working-as-intended"
+      ],
+      "relevancia": 13.47,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1816,
+      "titulo": "com.google.common.io.Closeables implementation pointless",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "type=defect",
+       "package=io",
+       "status=working-as-intended"
+      ],
+      "relevancia": 11.8,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 6152,
+      "titulo": "Modernize `BaseEncodingTest` somewhat.",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [],
+      "relevancia": 9.87,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1992,
+      "titulo": "Resources.getResources() not finding resources on certain devices.",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [],
+      "relevancia": 9.83,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 7 itens da mesma área (commented, closed)",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 8 itens da mesma área (closed, commented, commit)",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 6 itens da mesma área (commented, closed)",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 3 itens da mesma área (commented, closed)",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "ronshapiro",
+      "motivos": [
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "jbduncan",
+      "motivos": [
+       "participou de 4 itens da mesma área (commented)"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "OutputStream",
+      "InputStream",
+      "Throwable.addSuppressed",
+      "Closer.create",
+      "IOException.class",
+      "Closeables.close",
+      "Closer.runAndClose",
+      "Closeables.closeQuietly",
+      "AtomicReference"
+     ],
+     "arquivos_em_revisoes": []
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #1184 propõe uma classe `Closer` para facilitar o fechamento correto de múltiplos recursos `Closeable` no JDK6, suprimindo exceções de fechamento quando já ocorreu uma exceção no bloco principal. Foi criada em 2014-10-31 e está com estado **closed**.\n\n## O que já foi discutido\n- #2465 (closed/completed): adicionar métodos para fechar vários objetos com segurança, tema diretamente relacionado.\n- #513 (closed/completed): `Closeables.closeQuietly()` com varargs, alternativa para fechar múltiplos recursos.\n- #1308 (closed/completed): `Closer.close()` não deveria declarar `IOException`, discussão sobre a própria classe `Closer`.\n- #1330 (closed/completed): chamar `flush()` antes de `close()` em streams de `ByteSink` e `CharSink`, ligado ao fluxo de fechamento.\n- #1816 (closed/completed): a implementação de `Closeables` foi considerada desnecessária, relevante para entender a direção do pacote `io`.\n\n## Onde investigar no código\n- `Closer` e seus métodos de criação e fechamento (`Closer.create`, `Closer.runAndClose`), que implementam a supressão de exceções.\n- `Closeables.close` e `Closeables.closeQuietly`, que mostram o comportamento anterior e o motivo da descontinuação.\n- `Throwable.addSuppressed`, usado no JDK7 para registrar exceções suprimidas, e o fallback de log para JDK6.\n- `Closeable`, `InputStream` e `OutputStream`, os tipos de recurso que a classe deve tratar.\n- `AtomicReference`, citado no contexto como apoio a uma das abordagens.\n\nComece lendo a implementação de `Closer` e depois compare com `Closeables`.\n\n## Com quem falar\n- **cpovirk**: participou de 7 itens da mesma área e é mantenedor ativo.\n- **cgdecker**: autor da issue e participou de 8 itens relacionados; ótimo para entender a motivação.\n- **kluever**: participou de 6 itens da área e é mantenedor ativo.\n- **kevinb9n**: participou de 3 itens da área, útil para decisões de API.\n- **jbduncan**: participou de 4 itens da área, com comentários recentes sobre o tema.\n\n## Como contribuir no Guava\n- Quem já contribuiu antes teve 188 de 346 PRs aceitos, com decisão em mediana de 1.8 dias. Quem nunca contribuiu teve 16 de 345 PRs aceitos, com decisão em mediana de 3.3 dias.\n- Antes de escrever código, comente na issue para combinar a abordagem com os mantenedores.\n- Um PR aceito pode aparecer como \"closed\" sem merge: o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR.\n\n## Próximos passos\n1. Leia a issue #1184 completa e a discussão de #1118 referida nela, para entender por que `closeQuietly` foi descontinuado.\n2. Estude a implementação atual de `Closer` e `Closeables` no repositório.\n3. Comente na issue ou em #1308 apresentando sua dúvida ou proposta, mencionando cgdecker ou cpovirk.\n4. Aguarde a orientação dos mantenedores antes de escrever código.\n5. Só depois de alinhar a abordagem, abra um PR pequeno e focado, com testes que cubram a supressão de exceções.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1667,
+     "tokens_saida": 210,
+     "custo_usd": 0.000272,
+     "segundos": 1.7,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1800,
+     "tokens_saida": 1238,
+     "custo_usd": 0.000799,
+     "segundos": 5.3,
+     "cache": false
+    }
+   }
+  },
+  "2132": {
+   "interpretacao": {
+    "objetivo": "Adicionar à classe MediaType do Guava os tipos MIME de vídeo (video/x-flv, video/3gpp, video/3gpp2) e de áudio (audio/basic, audio/L24, audio/aac, audio/vorbis, audio/x-ms-wma, audio/x-ms-wax, audio/vnd.rn-realaudio, audio/vnd.wave) que estão faltando.",
+    "tipo": "melhoria",
+    "termos_busca": [
+     "MediaType",
+     "MIME types",
+     "video MIME",
+     "audio MIME",
+     "content type constants",
+     "media type registry"
+    ],
+    "elementos_codigo": [
+     "MediaType"
+    ]
+   },
+   "contexto": {
+    "issue": {
+     "numero": 2132,
+     "titulo": "Add video MediaTypes",
+     "corpo": "Missed several video MimeTypes in MediaType class:\n\n```\nvideo/x-flv\nvideo/3gpp\nvideo/3gpp2\n```\n\nand some audio types:\n\n```\naudio/basic\naudio/L24\naudio/aac\naudio/vorbis\naudio/x-ms-wma\naudio/x-ms-wax\naudio/vnd.rn-realaudio\naudio/vnd.wave\n```\n",
+     "estado": "closed",
+     "labels": [
+      "package=net",
+      "type=addition"
+     ],
+     "criada_em": "2015-08-13T13:35:44.000000000+00:00",
+     "autor": "Alexuy"
+    },
+    "modo": "atual",
+    "termos_de_busca": [
+     "MediaType",
+     "MIME types",
+     "video MIME",
+     "audio MIME",
+     "content type constants",
+     "media type registry"
+    ],
+    "itens_semelhantes": [
+     {
+      "tipo": "pr",
+      "numero": 2677,
+      "titulo": "Add a MIME type MPEG-DASH (mpd files)",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "cla: yes"
+      ],
+      "relevancia": 19.58,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 6042,
+      "titulo": "Change private access modifiers for constants in MediaType",
+      "estado": "open",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "P3"
+      ],
+      "relevancia": 13.03,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3332,
+      "titulo": "Moe Sync",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [
+       "cla: yes",
+       "internal-sync"
+      ],
+      "relevancia": 12.49,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3635,
+      "titulo": "Moe Sync",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [
+       "cla: yes",
+       "internal-sync"
+      ],
+      "relevancia": 12.39,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3145,
+      "titulo": "Put type annotations on types, not declarations",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "status=triaged",
+       "cla: yes"
+      ],
+      "relevancia": 10.08,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 3339,
+      "titulo": "Moe Sync",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": true,
+      "labels": [
+       "cla: yes",
+       "internal-sync"
+      ],
+      "relevancia": 9.76,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "pr",
+      "numero": 5641,
+      "titulo": "Remove Generic's type parameter",
+      "estado": "closed",
+      "motivo": null,
+      "aceito": false,
+      "labels": [
+       "cla: yes"
+      ],
+      "relevancia": 9.38,
+      "commits_que_resolveram": []
+     },
+     {
+      "tipo": "issue",
+      "numero": 1486,
+      "titulo": "Make MediaType.toString faster",
+      "estado": "closed",
+      "motivo": "completed",
+      "aceito": null,
+      "labels": [
+       "package=net",
+       "status=triaged",
+       "type=performance"
+      ],
+      "relevancia": 9.37,
+      "commits_que_resolveram": []
+     }
+    ],
+    "pessoas": [
+     {
+      "login": "cpovirk",
+      "motivos": [
+       "participou de 7 itens da mesma área (closed, commented, merged); em semelhantes: [2677, 3635]",
+       "mantenedor ativo (369 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "ronshapiro",
+      "motivos": [
+       "participou de 5 itens da mesma área (closed, merged); em semelhantes: [3145, 3339, 3332]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kluever",
+      "motivos": [
+       "participou de 6 itens da mesma área (commented, closed); em semelhantes: [1486]",
+       "mantenedor ativo (140 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "kevinb9n",
+      "motivos": [
+       "participou de 2 itens da mesma área (commented, closed); em semelhantes: [5641]",
+       "mantenedor ativo (74 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "cgdecker",
+      "motivos": [
+       "participou de 2 itens da mesma área (commented, closed); em semelhantes: [6042]",
+       "mantenedor ativo (122 issues/PRs fechados)"
+      ]
+     },
+     {
+      "login": "jotka",
+      "motivos": [
+       "participou de 1 item da mesma área (reviewed); em semelhantes: [6042]"
+      ]
+     }
+    ],
+    "codigo": {
+     "elementos_citados": [
+      "MediaType",
+      "MediaTypes",
+      "MimeTypes"
+     ],
+     "arquivos_em_revisoes": [
+      "android/guava/src/com/google/common/cache/AbstractCache.java"
+     ]
+    },
+    "processo": [
+     {
+      "vinculo_autor": "CONTRIBUTOR",
+      "prs": 346,
+      "abertos": 6,
+      "aceitos": 188,
+      "via_merge_github": 89,
+      "via_commit_interno": 99,
+      "fechados_sem_aceite": 152,
+      "dias_medianos_ate_decisao": 1.8
+     },
+     {
+      "vinculo_autor": "NONE",
+      "prs": 345,
+      "abertos": 42,
+      "aceitos": 16,
+      "via_merge_github": 0,
+      "via_commit_interno": 16,
+      "fechados_sem_aceite": 287,
+      "dias_medianos_ate_decisao": 3.3
+     },
+     {
+      "vinculo_autor": "MEMBER",
+      "prs": 211,
+      "abertos": 0,
+      "aceitos": 195,
+      "via_merge_github": 195,
+      "via_commit_interno": 0,
+      "fechados_sem_aceite": 16,
+      "dias_medianos_ate_decisao": 0.0
+     }
+    ]
+   },
+   "guia": "## Resumo da issue\nA issue #2132 pede a inclusão, na classe `MediaType` do Guava, de tipos MIME de vídeo (`video/x-flv`, `video/3gpp`, `video/3gpp2`) e de vários tipos de áudio que estavam faltando. Foi criada em 2015-08-13 e está **fechada**.\n\n## O que já foi discutido\n- #2677 [closed]: adicionou o tipo MIME MPEG-DASH (arquivos `.mpd`), um caso parecido de adição de tipo.\n- #6042 [open]: propõe mudar modificadores de acesso privados das constantes em `MediaType`, ainda sem desfecho.\n- #3332, #3339 e #3635 [closed; aceitos]: sincronizações \"Moe Sync\", que mostram como mudanças chegam ao repositório.\n- #3145 [closed]: trata de anotações de tipo, sem relação direta com esta issue.\n\n## Onde investigar no código\n- `MediaType`: classe central onde os tipos são declarados como constantes.\n- `MediaTypes`: classe auxiliar citada no contexto; vale verificar como as constantes são agrupadas.\n- `MimeTypes`: também citada; compare com `MediaType` para entender a convenção de nomes.\n- Não há informação suficiente no contexto sobre a implementação final da correção.\n\n## Com quem falar\n- **cpovirk**: mantenedor muito ativo, participou de itens semelhantes (#2677, #3635).\n- **ronshapiro**: mantenedor ativo, com histórico em itens da mesma área (#3145, #3339, #3332).\n- **kluever**: mantenedor ativo, participou de discussões relacionadas (#1486).\n- **jotka**: revisou o #6042, que mexe no mesmo arquivo `MediaType`.\n\n## Como contribuir no Guava\n- Contribuidores que já tiveram PRs aceitos têm taxa de aceite maior (188 de 346) e decisão mais rápida (mediana de 1,8 dias). Quem nunca contribuiu tem 16 de 345 aceitos, com mediana de 3,3 dias.\n- Antes de escrever código, comente na issue para combinar a abordagem com os mantenedores.\n- Um PR aceito pode aparecer como \"closed\" sem merge: o Google importa a mudança para o repositório interno e um commit sincronizado fecha o PR. Não interprete o estado \"closed\" como rejeição.\n\n## Próximos passos\n1. Leia `MediaType` e `MediaTypes` para entender como as constantes de tipo são declaradas.\n2. Verifique se os tipos listados na issue já existem em alguma dessas classes antes de propor qualquer alteração.\n3. Comente na issue (ou em um tópico recente como #6042) apresentando sua proposta e perguntando como os mantenedores preferem a organização dos tipos.\n4. Mencione cpovirk ou ronshapiro, que têm histórico em mudanças semelhantes, pedindo orientação sobre o escopo.\n5. Só depois de alinhar a abordagem, faça a alteração e abra o PR referenciando #2132.",
+   "metricas": {
+    "interpretacao": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 789,
+     "tokens_saida": 213,
+     "custo_usd": 0.000185,
+     "segundos": 2.1,
+     "cache": false
+    },
+    "sintese": {
+     "provedor": "anthropic",
+     "modelo": "claude-haiku-5-5",
+     "esforco": "low",
+     "pensar": false,
+     "tokens_entrada": 1641,
+     "tokens_saida": 1086,
+     "custo_usd": 0.000707,
+     "segundos": 5.3,
+     "cache": false
+    }
+   }
+  }
+ },
+ "meta": {
+  "gerado_em": "2026-11-08T16:29:18+00:00",
+  "modelo": "claude-haiku-5-5",
+  "provedor": "anthropic",
+  "issues": 10
+ }
+}

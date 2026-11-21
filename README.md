@@ -69,7 +69,7 @@ uv sync                                     # cria .venv com Python 3.12 e depen
 mkdir -p data/raw && cp /caminho/para/guava.sqlite data/raw/
 ```
 
-Crie um `.env` na raiz (ele está no `.gitignore`):
+Crie um `.env` na raiz a partir de `.env.example` (`cp .env.example .env`; ele está no `.gitignore`):
 
 ```dotenv
 NEO4J_URI=bolt://localhost:7687
@@ -183,30 +183,52 @@ gabarito de avaliação em `avaliacao/perguntas.jsonl`:
 uv run pytest
 ```
 
+### Teste com newcomers (MVP)
+
+Para testar sem que o participante precise de Docker, banco ou chave de API, o pacote
+leva guias pré-gerados de algumas issues (`src/kg_onboarding/dados/guias.json`). Sem
+Neo4j acessível, o comando `kgo` entra em modo offline e usa esses guias.
+
+```bash
+uv run kg-onboarding exportar 669 2098 ...   # gera/atualiza guias (precisa do grafo e do LLM)
+uv build --wheel                             # cria dist/kg_onboarding-<versão>-py3-none-any.whl
+```
+
+Envie o `.whl` e as instruções de [docs/teste_mvp.md](docs/teste_mvp.md). O participante
+instala com `uv tool install <arquivo>.whl` e usa `kgo <issue>`. No clone, `uv run kgo
+<issue>` roda ao vivo; `--offline` força os guias pré-gerados.
+
 ### Guia de uma issue
 
 Implementa o atendimento ao newcomer descrito em [docs/arquitetura.md](docs/arquitetura.md):
 o LLM interpreta a issue, o grafo fornece o contexto relacionado (itens semelhantes,
 pessoas, código citado, processo) e o LLM redige um guia em português.
 
-O LLM roda localmente no [Ollama](https://ollama.com), em um container do mesmo
-`docker-compose.yml`. Na primeira vez, baixe o modelo (~2 GB):
+O LLM pode ser o Claude, pela API da Anthropic, ou um modelo local no
+[Ollama](https://ollama.com). Todas as variáveis estão em [.env.example](.env.example).
+
+**Claude (padrão quando há chave).** Coloque a chave no `.env`; o modelo padrão é o
+`claude-haiku-5-5`, o mais barato (US$ 0,10 / 0,50 por milhão de tokens de entrada/saída;
+um guia custa frações de centavo e o custo aparece no rodapé):
+
+```dotenv
+ANTHROPIC_API_KEY=sk-ant-...
+# LLM_MODELO=claude-sonnet-5-5   # opcional: modelo maior, para comparação
+```
+
+Os modelos atuais do Claude não aceitam temperatura nem semente: a reprodutibilidade
+vem do esquema JSON na interpretação e do registro de cada resposta.
+
+**Ollama (local, sem custo).** Sem `ANTHROPIC_API_KEY` (ou com `LLM_PROVEDOR=ollama`).
+Na primeira vez, baixe o modelo (~2 GB):
 
 ```bash
-docker compose up -d ollama
+docker compose --profile ollama up -d
 docker exec ollama-mestrado ollama pull qwen2.5:3b
 ```
 
-Variáveis opcionais no `.env` (os valores abaixo são os padrões):
-
-```dotenv
-LLM_MODELO=qwen2.5:3b
-OLLAMA_HOST=http://localhost:11434
-LLM_NUM_CTX=8192
-```
-
 ```bash
-uv run kg-onboarding guia 2098              # guia completo (~1 min na CPU)
+uv run kg-onboarding guia 2098              # guia completo (segundos no Claude; ~1 min no Ollama/CPU)
 uv run kg-onboarding guia 2098 --sem-llm    # só o contexto do grafo (instantâneo)
 uv run kg-onboarding guia 2098 --replay     # só com o que existia quando a issue foi criada
 uv run kg-onboarding guia 2098 --json       # saída estruturada completa

@@ -101,21 +101,16 @@ def test_termos_heuristicos_tiram_stopwords_e_pegam_codigo():
 
 
 # ---------------------------------------------------------------------------
-# LLM local (Ollama): pulados se o Ollama não estiver no ar
+# LLM (Claude ou Ollama, ver llm.py): pulados se o provedor não estiver disponível
 # ---------------------------------------------------------------------------
 
 from kg_onboarding.guia import ESQUEMA_INTERPRETACAO, TIPOS, _contexto_compacto, interpretar  # noqa: E402
 
 
-def _ollama_disponivel() -> bool:
-    from kg_onboarding.llm import MODELO, _cliente
-    try:
-        return any(m.model.startswith(MODELO) for m in _cliente().list().models)
-    except Exception:  # noqa: BLE001
-        return False
+from kg_onboarding import llm  # noqa: E402
 
-
-requer_ollama = pytest.mark.skipif(not _ollama_disponivel(), reason="Ollama/modelo indisponível")
+requer_llm = pytest.mark.skipif(not llm.disponivel(),
+                                reason=f"LLM indisponível ({llm.PROVEDOR}/{llm.MODELO})")
 
 
 def test_contexto_compacto_cabe_na_janela():
@@ -124,10 +119,23 @@ def test_contexto_compacto_cabe_na_janela():
     assert len(texto) < 8000  # ~2 mil tokens: mantém a síntese rápida na CPU
 
 
-@requer_ollama
+@requer_llm
 def test_interpretacao_segue_o_esquema():
     issue = coletar_contexto(2098)["issue"]
     interp, metricas = interpretar(issue)
     assert set(ESQUEMA_INTERPRETACAO["required"]) <= set(interp)
     assert interp["tipo"] in TIPOS and interp["termos_busca"]
     assert metricas["tokens_entrada"] > 0
+
+
+# ---------------------------------------------------------------------------
+# Guias pré-gerados (modo offline, distribuídos no pacote)
+# ---------------------------------------------------------------------------
+
+def test_guias_pre_gerados_sao_validos():
+    from kg_onboarding.config import ARQUIVO_GUIAS
+    pacote = json.loads(ARQUIVO_GUIAS.read_text(encoding="utf-8"))
+    assert pacote["meta"]["issues"] == len(pacote["guias"]) > 0
+    for numero, g in pacote["guias"].items():
+        assert g["guia"].strip() and g["contexto"]["issue"]["numero"] == int(numero)
+    assert "sk-ant" not in ARQUIVO_GUIAS.read_text(encoding="utf-8")  # nada sensível no pacote

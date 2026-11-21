@@ -4,7 +4,7 @@ Etapas da arquitetura (docs/arquitetura.md):
   2.3 Enriquecimento contextual  -> itens semelhantes, pessoas, código citado
   2.4 Consolidação               -> ranqueamento e corte
 
-As etapas 2.2 (interpretação) e 2.5 (síntese) usam o LLM local (ver llm.py) e
+As etapas 2.2 (interpretação) e 2.5 (síntese) usam o LLM (ver llm.py) e
 estão em `gerar_guia`, no fim deste módulo.
 
 Modo replay: com `replay=True`, só se usa o que existia antes da criação da

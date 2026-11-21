@@ -15,7 +15,7 @@ src/kg_onboarding/      pacote Python do projeto
 notebooks/              análises exploratórias (Jupyter)
 docs/                   documentação
 docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
-.env                    NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD (não versionado)
+.env                    credenciais e configuração (não versionado; modelo em .env.example)
 ```
 
 ## Neo4j
@@ -42,9 +42,22 @@ docker-compose.yml      Neo4j 5.26 Community + plugin Graph Data Science
 - Dados de issues/PRs estão incompletos (extração abortada); ver `docs/perguntas_newcomer.md`.
 - Guia de uma issue (arquitetura online, fluxo fixo): `src/kg_onboarding/guia.py`;
   `uv run kg-onboarding guia <n> [--sem-llm] [--replay] [--json]`. Mapa e resultados: `docs/arquitetura.md`
-- LLM: Ollama local (escolha do usuário), container `ollama-mestrado` no docker-compose,
-  modelo `qwen2.5:3b`; acesso só via `src/kg_onboarding/llm.py` (temperatura 0, seed fixa,
-  `num_ctx` explícito). CPU apenas: manter o contexto da síntese compacto.
+- LLM: acesso só via `src/kg_onboarding/llm.py`, que tem dois provedores com a mesma
+  interface (`gerar`/`gerar_json`). Padrão: API do Claude (`claude-haiku-5-5`, o mais barato)
+  se houver `ANTHROPIC_API_KEY` no `.env`; senão, Ollama local (`qwen2.5:3b`, temperatura 0,
+  seed fixa, `num_ctx` explícito). Os modelos atuais do Claude rejeitam `temperature`: não
+  enviar. O Ollama fica no perfil `ollama` do compose (`docker compose --profile ollama up -d`).
+  Variáveis em `.env.example`. Economia (pedido do usuário): raciocínio do Haiku desligado
+  (`LLM_PENSAR=0`), esforço `low` e cache de respostas em `data/cache_llm/` — não desligar
+  sem combinar. Chave da API só no `.env` (permissão 600); nunca exibir, logar ou commitar.
+- Configuração: `src/kg_onboarding/config.py` (env, `./.env`, `.env` do clone,
+  `~/.config/kg-onboarding/.env`); funciona no clone e instalado via `.whl`.
+- MVP para testes: `kgo <issue>` (atalho). Sem Neo4j, usa os guias pré-gerados em
+  `src/kg_onboarding/dados/guias.json` (`uv run kg-onboarding exportar <issues...>`,
+  depois `uv build --wheel`). Não gerar guias para todas as issues sem o usuário pedir.
+  Instruções para testadores: `docs/teste_mvp.md`.
+- Dependências: núcleo enxuto (neo4j, anthropic, python-dotenv); `ollama` é extra
+  (`uv sync --extra ollama`); análise (jupyter, polars, duckdb, pydriller) no grupo `analise`.
 - Avaliação por replay: `uv run avaliacao/replay.py` (resultados em `data/avaliacao/`).
   Ao mudar a recuperação, rode de novo e atualize a tabela em `docs/arquitetura.md`.
 - Mineração do repositório Git: adiada por decisão do usuário; não implementar sem pedido.
